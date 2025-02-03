@@ -3,10 +3,12 @@
 A SQLPlate (SQL template) is store and generate SQL template project.
 
 ```text
-docs
-    templates
-        databricks
-            delta.sql
+templates
+  ├─ databricks/
+  │    ├─ etl-delta.sql
+  │    ╰─ etl-scd2.sql
+  ╰─ synapse/
+       ╰─ delta.sql
 ```
 
 ## :speech_balloon: Contribute
