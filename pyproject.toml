@@ -30,8 +30,18 @@ Homepage = "https://github.com/korawica/sqlplate/"
 Source = "https://github.com/korawica/sqlplate/"
 
 [build-system]
-requires = ["flit_core >= 3.4"]
+requires = ["flit_core>=3.4"]
 build-backend = "flit_core.buildapi"
+
+[tool.flit.module]
+name = "sqlplate"
+
+[tool.flit.sdist]
+include = [
+    "docs/",
+    "tests/",
+    "CHANGELOG.md",
+]
 
 [tool.shelf.version]
 version = "./src/sqlplate/__version__.py"
