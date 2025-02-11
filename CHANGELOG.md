@@ -2,6 +2,13 @@
 
 ## Latest Changes
 
+## 0.0.1.post0
+
+### :bug: Bug fixes
+
+- :gear: fixed: change release name to tag_name on upload gh sign.
+- :gear: fixed: change upload artifact sign cmd.
+
 ## 0.0.1
 
 ### :sparkles: Features
