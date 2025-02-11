@@ -7,8 +7,31 @@ templates
   ├─ databricks/
   │    ├─ etl-delta.sql
   │    ╰─ etl-scd2.sql
-  ╰─ synapse/
+  ╰─ synapse-dedicate/
        ╰─ delta.sql
+```
+
+## Usage
+
+```python
+from datetime import datetime
+from src.sqlplate import SQL
+
+statement: str = (
+    SQL.system('databricks')
+        .template('etl.scd2')
+        .option('schema', 'schema-name')
+        .option('table', 'table-name')
+        .option('pk', ['pk_col_name'])
+        .option('columns', ['pk_col_name', 'col_01', 'col_02', 'col_03'])
+        .option('load_date', f"{datetime.now():%Y-%m-%d %H:%M:%S}")
+        .option('load_src', 'SOURCE_SYS_FOO')
+        .load()
+)
+print(statement)
+```
+
+```text
 ```
 
 ## :speech_balloon: Contribute

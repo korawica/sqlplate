@@ -1,4 +1,6 @@
 SELECT *
-FROM VALUES (
-    'Tome Charl', 10, 'tomech@email.com', true
-)
+FROM {{ catalog }}.{{ schema }}.{{ table }}
+{{% if limit %}}
+LIMIT {{ limit }}
+{{% else %}}
+{{% endif %}}

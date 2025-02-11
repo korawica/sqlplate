@@ -1,4 +1,4 @@
-MERGE INTO {p_table_fullname} AS target
+MERGE INTO {{ p_table_fullname }} AS target
 USING (
     WITH change_query AS (
         SELECT
