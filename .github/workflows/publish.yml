@@ -126,7 +126,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          RELEASE=$(echo ${{ github.ref_name }} | cut -c 2-)
+          gh release list
           gh release upload \
-            "$RELEASE" dist/** \
+            "${{ github.event.release.name }}" dist/** \
             --repo "${{ github.repository }}"
