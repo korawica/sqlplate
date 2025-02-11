@@ -1,4 +1,5 @@
-MERGE INTO {p_catalog_name}.{p_schema_name}.{p_table_name} AS target
+{% include "utils/etl_vars.jinja" %}
+MERGE INTO {{ catalog }}.{{ schema }}.{{ table }} AS target
 USING (
     WITH change_query AS (
         SELECT
@@ -7,7 +8,7 @@ USING (
                 WHEN hash({_p_col_without_pk_src_str}) <> hash({_p_col_without_pk_tgt_str}) THEN 1
                 ELSE 0 END AS data_change
         FROM ( {query} ) AS src
-        LEFT JOIN {p_catalog_name}.{p_schema_name}.{p_table_name} AS tgt
+        LEFT JOIN {{ catalog }}.{{ schema }}.{{ table }} AS tgt
             ON tgt.end_dt = '9999-12-31'
             AND {' AND '.join(_p_pk_cols_pairs)}
     )

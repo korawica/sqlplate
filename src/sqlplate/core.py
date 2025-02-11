@@ -14,10 +14,10 @@ from .utils import get_env
 from .exceptions import TemplateNotSet
 
 
-class SQL:
+class SQLPlate:
     """A SQL object for render any SQL template that prepare by Jinja package."""
 
-    def __init__(self, name: str, path: Path):
+    def __init__(self, name: str, path: Path) -> None:
         self.name: str = name
 
         if not path.exists():
@@ -28,29 +28,29 @@ class SQL:
         self._option: dict[str, Any] = {}
 
     @classmethod
-    def system(cls, name: str, path: Path | None = None) -> 'SQL':
+    def system(cls, name: str, path: Path | None = None) -> 'SQLPlate':
         """Construction this class from a system value name.
 
         Args:
-            name (str): A system name of the SQL template.
+            name (str): A system name of the SQLPlate template.
             path (Path | None): A template path.
         """
         if path is None:
             path: Path = Path('./templates')
         return cls(name=name, path=path)
 
-    def template(self, name: str) -> 'SQL':
+    def template(self, name: str) -> 'SQLPlate':
         """Create template object attribute on this instance."""
         self._template: Template = (
             get_env(self.path).get_template(f'{self.name}/{name}.sql')
         )
         return self
 
-    def option(self, key: str, value: Any) -> 'SQL':
+    def option(self, key: str, value: Any) -> 'SQLPlate':
         self._option[key] = value
         return self
 
-    def options(self, values: dict[str, Any]) -> 'SQL':
+    def options(self, values: dict[str, Any]) -> 'SQLPlate':
         self._option = self._option | values
         return self
 

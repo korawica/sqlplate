@@ -1,1 +1,1 @@
-from .core import SQL
+from .core import SQLPlate

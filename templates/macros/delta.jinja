@@ -1,0 +1,5 @@
+{% macro sys_update_match(load_src, load_id, load_date) -%}
+    ,   target.updt_prcs_nm     = '{{ load_src }}'
+    ,   target.updt_prcs_ld_id  = {{ load_id }}
+    ,   target.updt_asat_dt     = to_timestamp('{{ load_date | dt_fmt('%Y%m%d') }}', 'yyyyMMdd')
+{%- endmacro %}

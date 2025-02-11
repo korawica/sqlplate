@@ -5,6 +5,7 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+from datetime import datetime
 from pathlib import Path
 
 from jinja2 import Environment, PackageLoader
@@ -21,17 +22,23 @@ def map_fmt(value: list[str], fmt: str) -> list[str]:
     return [fmt.format(i) for i in value]
 
 
-def raise_undefined(value: str):
+def raise_undefined(value: str) -> None:
+    """Raise with UndefinedError for a needed variable on the Jinja template."""
     if len(value.split('|')) > 1:
         value: str = "' or '".join(value.split('|'))
     raise UndefinedError(f"The '{value}' is undefined")
+
+
+def dt_fmt(value: datetime, fmt: str) -> str:
+    """Format a datetime object to string value."""
+    return value.strftime(fmt)
 
 
 def get_env(
     path: Path,
     trim_blocks: bool = True,
     lstrip_blocks: bool = True,
-):
+) -> Environment:
     """Get jinja environment object for the SQL template files.
 
     Args:
@@ -48,5 +55,6 @@ def get_env(
         lstrip_blocks=lstrip_blocks
     )
     env.filters['map_fmt'] = map_fmt
+    env.filters['dt_fmt'] = dt_fmt
     env.globals['raise_undefined'] = raise_undefined
     return env

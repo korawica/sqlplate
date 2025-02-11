@@ -5,18 +5,16 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
-from dataclasses import dataclass
 
-
-@dataclass
-class DefaultParams:
-    database: str
-    schema: str
-    table: str
-
-
-@dataclass
-class DatabricksParams:
-    catalog: str
-    schema: str
-    table: str
+class BaseConf:
+    scd2_columns: list[str] = [
+        'start_dt',
+        'end_dt',
+        'delete_f',
+        'prcs_nm',
+        'prcs_ld_id',
+        'asat_dt',
+        'updt_prcs_nm',
+        'updt_prcs_ld_id',
+        'updt_asat_dt',
+    ]

@@ -1,3 +1,4 @@
+{% include "utils/etl_vars.jinja" %}
 MERGE INTO {{ catalog }}.{{ schema }}.{{ table }} AS target
 USING (
     WITH change_query AS (
