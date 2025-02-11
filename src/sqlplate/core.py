@@ -15,7 +15,11 @@ from .exceptions import TemplateNotSet
 
 
 class SQLPlate:
-    """A SQL object for render any SQL template that prepare by Jinja package."""
+    """A SQLPlate object for render any SQL template that prepare by Jinja
+    template.
+
+        This object cas pass an option with dot pattern like func-programing.
+    """
 
     def __init__(self, name: str, path: Path) -> None:
         self.name: str = name
@@ -47,10 +51,17 @@ class SQLPlate:
         return self
 
     def option(self, key: str, value: Any) -> 'SQLPlate':
+        """Pass an option key-value pair before generate template."""
         self._option[key] = value
         return self
 
     def options(self, values: dict[str, Any]) -> 'SQLPlate':
+        """Pass an option mapping with multiple key-value pairs before generate
+        template.
+
+        Args:
+            values (dict[str, Any]): A mapping of multiple key-value pairs.
+        """
         self._option = self._option | values
         return self
 

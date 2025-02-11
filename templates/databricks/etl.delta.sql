@@ -1,6 +1,7 @@
 {% include "utils/etl_vars.jinja" %}
+{{ raise_undefined('pk') if pk is undefined }}
 {% import "macros/delta.jinja" as delta %}
-{%- set scd2_columns = ['start_dt', 'end_dt', 'delete_f', 'prcs_nm', 'prcs_ld_id', 'asat_dt', 'updt_prcs_nm', 'updt_prcs_ld_id', 'updt_asat_dt'] -%}
+{%- set etl_columns = ['load_src', 'load_id', 'load_date', 'updt_load_src', 'updt_load_id', 'updt_load_date'] -%}
 {% if pk is iterable and pk is not string and pk is not mapping %}
     {%- set pk_list = pk -%}
 {% else %}
@@ -13,7 +14,7 @@
 {% else %}
     {{ raise_undefined('source|query') }}
 {% endif %}
-{%- set all_columns = columns + pk_list + scd2_columns -%}
+{%- set all_columns = columns + pk_list + etl_columns -%}
 {%- set data_columns = columns + pk_list -%}
 MERGE INTO {{ catalog }}.{{ schema }}.{{ table }} AS target
 USING (

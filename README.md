@@ -66,12 +66,12 @@ AND tgt.col02 = src.col02
 WHEN MATCHED THEN UPDATE
     SET target.col01            = source.col01
     ,   target.col02            = source.col02
-    ,   target.updt_prcs_nm     = 'SOURCE_FOO'
-    ,   target.updt_prcs_ld_id  = 1
-    ,   target.updt_asat_dt     = to_timestamp('20250201', 'yyyyMMdd')
+    ,   target.updt_load_src    = 'SOURCE_FOO'
+    ,   target.updt_load_id     = 1
+    ,   target.updt_load_date   = to_timestamp('20250201', 'yyyyMMdd')
 WHEN NOT MATCHED THEN INSERT
     (
-        col01, col02, pk_col, start_dt, end_dt, delete_f, prcs_nm, prcs_ld_id, asat_dt, updt_prcs_nm, updt_prcs_ld_id, updt_asat_dt
+        col01, col02, pk_col, load_src, load_id, load_date, updt_load_src, updt_load_id, updt_load_date
     )
     VALUES (
         source.col01,
