@@ -2,6 +2,20 @@
 
 ## Latest Changes
 
+## 0.0.1.post1
+
+### :black_nib: Code Changes
+
+- :test_tube: tests: add list release cli on pre-release.
+
+### :bug: Bug fixes
+
+- :gear: fixed: remove repo name on upload to gh release cli.
+
+### :package: Build & Workflow
+
+- :toolbox: build: rename gh token env var.
+
 ## 0.0.1.post0
 
 ### :bug: Bug fixes
