@@ -1,27 +1,34 @@
-MERGE INTO {{ p_table_fullname }} AS target
+{{ raise_undefined('columns') if columns is undefined }}
+MERGE INTO {{ catalog }}.{{ schema }}.{{ table }} AS target
 USING (
     WITH change_query AS (
         SELECT
             src.*,
-            CASE WHEN tgt.es_id IS NULL THEN 99
-                WHEN hash({_p_col_without_pk_src_str}) <> hash({_p_col_without_pk_tgt_str}) THEN 1
-                ELSE 0 END AS data_change
-        FROM ( {query} ) AS src
-        LEFT JOIN {p_table_fullname} AS tgt
-            ON {' AND '.join(_p_pk_cols_pairs_sub_query)}
+        CASE WHEN tgt.{% if pk is iterable and pk is not string and pk is not mapping %}{{ pk | first }}{% else %}{{ pk }}{% endif %} IS NULL THEN 99
+             WHEN hash({{ columns | map_fmt('src.{0}') | join(', ') }}) <> hash({{ columns | map_fmt('tgt.{0}') | join(', ') }}) THEN 1
+             ELSE 0 END AS data_change
+        FROM {% if source is defined %}{{ source | trim }}{% elif query is defined %}{{ '( {} )'.format(query) }}{% else %}{{ raise_undefined('source|query') }}{% endif %} AS src
+        LEFT JOIN {{ catalog }}.{{ schema }}.{{ table }} AS tgt
+            ON {{ columns | map_fmt("tgt.{0} = src.{0}") | join(' AND ') }}
     )
     SELECT * EXCEPT( data_change ) FROM change_query WHERE data_change IN (99, 1)
 ) AS source
-    ON {' AND '.join(_p_pk_cols_pairs)}
+    ON {% if pk is iterable and pk is not string and pk is not mapping %}{{ pk | map_fmt('target.{0} = source.{0}') | join(' AND ') }}{% else %}{{ 'target.{0} = source.{0}'.format(pk) }}{% endif %}
 WHEN MATCHED THEN UPDATE
     SET {', '.join(_p_col_update)}
-    ,   target.updt_prcs_nm     = '{p_process_name}'
-    ,   target.updt_prcs_ld_id  = {p_process_load_id}
+    ,   target.updt_prcs_nm     = '{{ load_src }}'
+    ,   target.updt_prcs_ld_id  = {{ load_id }}
     ,   target.updt_asat_dt     = to_timestamp('{p_asat_dt}', 'yyyyMMdd')
 WHEN NOT MATCHED THEN INSERT
-    ( {', '.join(i.name for i in rs_col_all)} )
+    (
+        {', '.join(i.name for i in rs_col_all)}
+    )
     VALUES (
         {', '.join('source.' + i.name for i in rs_col_real)},
-        '{p_process_name}', {p_process_load_id}, {p_asat_dt},
-        '{p_process_name}', {p_process_load_id}, to_timestamp('{p_asat_dt}', 'yyyyMMdd')
+        '{{ load_src }}',
+        {{ load_id }},
+        {p_asat_dt},
+        '{{ load_src }}',
+        {{ load_id }},
+        to_timestamp('{p_asat_dt}', 'yyyyMMdd')
     )
