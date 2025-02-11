@@ -1,4 +1,0 @@
-pytest
-
-# Core package
-Jinja2==3.1.5

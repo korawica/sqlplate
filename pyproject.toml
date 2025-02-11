@@ -1,0 +1,39 @@
+[project]
+name = "sqlplate"
+description = "SQL template generator"
+readme = "README.md"
+requires-python = ">= 3.9"
+dynamic = ["version"]
+keywords = ['utility', 'sql']
+authors = [
+    { name = "korawica", email = "korawich.anu@gmail.com" },
+]
+classifiers = [
+    "Topic :: Utilities",
+    "Natural Language :: English",
+    "Development Status :: 4 - Beta",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Typing :: Typed",
+]
+dependencies = ["Jinja2==3.1.5"]
+
+
+[project.urls]
+Homepage = "https://github.com/korawica/sqlplate/"
+Source = "https://github.com/korawica/sqlplate/"
+
+[build-system]
+requires = ["flit_core >= 3.4"]
+build-backend = "flit_core.buildapi"
+
+[tool.shelf.version]
+version = "./src/sqlplate/__version__.py"
+changelog = "CHANGELOG.md"
+commit_msg_format = "- {subject}"
