@@ -128,5 +128,5 @@ jobs:
         run: |
           gh release list
           gh release upload \
-            "${{ github.event.release.name }}" dist/** \
+            "${{ github.event.release.tag_name }}" dist/** \
             --repo "${{ github.repository }}"
