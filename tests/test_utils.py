@@ -1,4 +1,4 @@
-from src import get_env
+from src.sqlplate.utils import get_env
 
 
 def test_get_env(test_path):
