@@ -48,9 +48,10 @@ class SQL:
         return self
 
     def load(self) -> str:
+        """Generate the SQL statement from its template setup."""
         if self._template is None:
             raise TemplateNotSet(
                 "Template object does not create before load, you should use "
                 "`.template(name=?)`."
             )
-        return self._template.render(**self._option)
+        return self._template.render(**self._option).strip().strip('\n')

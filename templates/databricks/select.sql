@@ -1,6 +1,3 @@
 SELECT *
-FROM {{ catalog }}.{{ schema }}.{{ table }}
-{{% if limit %}}
-LIMIT {{ limit }}
-{{% else %}}
-{{% endif %}}
+FROM {{ "{}.".format(catalog) if catalog }}{{ schema }}.{{ table }}
+{{ "LIMIT {}".format(limit) if limit }}
