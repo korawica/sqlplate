@@ -1,17 +1,29 @@
 # SQL Template
 
-A SQLPlate (SQL template) is store and generate SQL template project.
+A SQLPlate (SQL template) generator that is a generator object for SQL template
+statement.
+
+**The layer of SQL template files will be:**
 
 ```text
-templates
-  ├─ databricks/
-  │    ├─ etl-delta.sql
-  │    ╰─ etl-scd2.sql
-  ╰─ synapse-dedicate/
-       ╰─ delta.sql
+📂templates/
+   ├─ 📂databricks/
+   │     ├─ 📜 etl-delta.sql
+   │     ╰─ 📜 etl-scd2.sql
+   ╰─ 📂synapse-dedicate/
+         ╰─ 📜 delta.sql
 ```
 
-## Usage
+## :package: Installation
+
+```shell
+pip install -U sqlplate
+```
+
+> [!WARNING]
+> This package does not exist on the PyPI yet.
+
+## :fork_and_knife: Usage
 
 ```python
 from datetime import datetime
@@ -20,6 +32,7 @@ from src.sqlplate import SQL
 statement: str = (
     SQL.system('databricks')
         .template('etl.scd2')
+        .option('catalog', 'catalog-name')
         .option('schema', 'schema-name')
         .option('table', 'table-name')
         .option('pk', ['pk_col_name'])
@@ -31,8 +44,29 @@ statement: str = (
 print(statement)
 ```
 
-```text
+```sql
+MERGE INTO catalog-name.schema-name.table-name AS target
+USING (
+    ...
+) AS source
+    ON target.pk_col_name = source.pk_col_name
+WHEN MATCH AND source.data_change = 1
+THEN UPDATE
+    SET ...
 ```
+
+## Systems
+
+| System     |    Progress     | Version  | Remark  |
+|:-----------|:---------------:|:--------:|---------|
+| databricks | :yellow_circle: |          |         |
+| sqlite     | :yellow_circle: |          |         |
+
+> [!NOTE]
+> - :green_circle:: Complete
+> - :yellow_circle:: In progress
+> - :red_circle:: Does not develop
+> - :purple_circle:: Does not plan to support
 
 ## :speech_balloon: Contribute
 
