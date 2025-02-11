@@ -20,14 +20,11 @@ statement.
 pip install -U sqlplate
 ```
 
-> [!WARNING]
-> This package does not exist on the PyPI yet.
-
 ## :fork_and_knife: Usage
 
 ```python
 from datetime import datetime
-from src import SQL
+from sqlplate import SQL
 
 statement: str = (
     SQL.system('databricks')
