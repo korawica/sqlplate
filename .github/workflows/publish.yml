@@ -44,6 +44,12 @@ jobs:
           name: release-dists
           path: dist/
 
+      - name: Test list pre-release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release list
+
   pypi-publish:
     runs-on: ubuntu-latest
     if: github.event.action == 'released' && startsWith(github.ref, 'refs/tags')
