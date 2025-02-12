@@ -1,20 +1,22 @@
 # SQL Template
 
-A SQLPlate (SQL template) generator that is a generator object for SQL template
-statement.
+A SQLPlate (SQL template) provide the generator object for SQL template statements
+via Python API object.
+All SQL template files are store in the [Jinja template](https://jinja.palletsprojects.com/en/stable/templates/)
+format that is the powerful template tool package.
 
 **The layer of SQL template files will be:**
 
 ```text
 📂templates/
    ├─ 📂databricks/
-   │     ├─ 📜 etl.delta.sql
-   │     ├─ 📜 etl.scd2.sql
-   │     ╰─ 📜 select.sql
+   │     ├─ 📜etl.delta.sql
+   │     ├─ 📜etl.scd2.sql
+   │     ╰─ 📜select.sql
    ├─ 📂synapse-dedicate/
-   │     ╰─ 📜 etl.delta.sql
+   │     ╰─ 📜etl.delta.sql
    ╰─ 📂utils/
-         ╰─ 📜 etl_vars.jinja
+         ╰─ ⚙️etl_vars.jinja
 ```
 
 ## :package: Installation
@@ -93,16 +95,16 @@ WHEN NOT MATCHED THEN INSERT
 
 ## Systems
 
-| System     |    Progress     |       Templates       | Remark  |
-|:-----------|:---------------:|:---------------------:|---------|
-| databricks | :yellow_circle: | etl.delta<br>etl.scd2 |         |
-| sqlite     | :yellow_circle: |                       |         |
+| System     | Progress |       Templates       | Remark  |
+|:-----------|:--------:|:---------------------:|---------|
+| databricks |    🟡    | etl.delta<br>etl.scd2 |         |
+| sqlite     |    🟡    |                       |         |
 
 > [!NOTE]
-> - :green_circle: Complete
-> - :yellow_circle: In progress
-> - :red_circle: Does not develop
-> - :purple_circle: Does not plan to support
+> - 🟢 Complete
+> - 🟡 In progress
+> - 🔴 Does not develop
+> - 🟣 Does not plan to support
 
 ## :speech_balloon: Contribute
 
