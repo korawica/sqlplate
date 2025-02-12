@@ -2,6 +2,26 @@
 
 ## Latest Changes
 
+## 0.0.3
+
+### :sparkles: Features
+
+- :dart: feat: add template type args on SQLPlate object for filter jinja variables.
+- :dart: feat: add hash macro in utils.jinja.
+- :dart: feat: add revert statement on etl scd1 soft delete template.
+- :dart: feat: add config value and able to passing to jinja env.
+- :dart: feat: add base template.
+- :dart: feat: add scd2 and scd2 with delete flag templates on databricks sys.
+
+### :package: Build & Workflow
+
+- :toolbox: build: add gh issue template for request new template.
+- :toolbox: build: add gh issue template.
+
+### :postbox: Dependencies
+
+- :pushpin: deps: update clishelf version to 0.2.17.
+
 ## 0.0.2
 
 ### :sparkles: Features
