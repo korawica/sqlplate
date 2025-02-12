@@ -25,6 +25,9 @@ pip install -U sqlplate
 
 ## :fork_and_knife: Usage
 
+Start passing option parameters before generate Delta ETL SQL template that use
+on the Databricks service.
+
 ```python
 from datetime import datetime
 from sqlplate import SQLPlate
@@ -46,7 +49,9 @@ statement: str = (
 print(statement.strip().strip('\n'))
 ```
 
-```sql
+Result SQL statement that was generated from this package.
+
+```text
 MERGE INTO catalog-name.schema-name.table-name AS target
 USING (
     WITH change_query AS (
@@ -88,16 +93,16 @@ WHEN NOT MATCHED THEN INSERT
 
 ## Systems
 
-| System     |    Progress     | Version  | Remark  |
-|:-----------|:---------------:|:--------:|---------|
-| databricks | :yellow_circle: |          |         |
-| sqlite     | :yellow_circle: |          |         |
+| System     |    Progress     |       Templates       | Remark  |
+|:-----------|:---------------:|:---------------------:|---------|
+| databricks | :yellow_circle: | etl.delta<br>etl.scd2 |         |
+| sqlite     | :yellow_circle: |                       |         |
 
 > [!NOTE]
-> - :green_circle:: Complete
-> - :yellow_circle:: In progress
-> - :red_circle:: Does not develop
-> - :purple_circle:: Does not plan to support
+> - :green_circle: Complete
+> - :yellow_circle: In progress
+> - :red_circle: Does not develop
+> - :purple_circle: Does not plan to support
 
 ## :speech_balloon: Contribute
 
