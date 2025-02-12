@@ -2,6 +2,19 @@
 
 ## Latest Changes
 
+## 0.0.2
+
+### :sparkles: Features
+
+- :dart: feat: add remove comment flag in load method.
+- :dart: feat: add databricks/scd1-soft-delete template.
+- :dart: feat: add macros and utils for dynamic template generator.
+- :dart: feat: add databricks/delta template.
+
+### :package: Build & Workflow
+
+- :toolbox: build: add name on publish workflow.
+
 ## 0.0.1.post1
 
 ### :black_nib: Code Changes
