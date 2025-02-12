@@ -5,3 +5,13 @@
         md5(concat_ws('|', {{ columns | map_fmt("COALESCE(CAST(src.{0} AS string), '')") | join(', ') }})) <> md5(concat_ws('|', {{ columns | map_fmt("COALESCE(CAST(tgt.{0} AS string), '')") | join(', ') }}))
     {%- endif -%}
 {%- endmacro %}
+
+{% macro prepare_source(source, query) -%}
+    {%- if source is defined -%}
+        {{ source|trim }}
+    {%- elif query is defined -%}
+        {{ '( {} )'.format(query) }}
+    {%- else -%}
+        {{ raise_undefined('source|query') }}
+    {% endif %}
+{%- endmacro %}

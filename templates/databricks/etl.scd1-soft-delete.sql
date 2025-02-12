@@ -2,19 +2,14 @@
 {% include "utils/etl_vars.jinja" %}
 {{ raise_undefined('pk') if pk is undefined }}
 {% import "databricks/macros/scd1.jinja" as scd1 %}
-{% from "databricks/macros/utils.jinja" import hash %}
+{% from "databricks/macros/utils.jinja" import hash, prepare_source %}
+
 {% if pk is iterable and pk is not string and pk is not mapping %}
     {%- set pk_list = pk -%}
 {% else %}
     {%- set pk_list = [pk] -%}
 {% endif %}
-{% if source is defined %}
-    {%- set source_query = source|trim -%}
-{% elif query is defined %}
-    {%- set source_query = '( {} )'.format(query) -%}
-{% else %}
-    {{ raise_undefined('source|query') }}
-{% endif %}
+
 {%- set all_columns = columns + pk_list + scd1_soft_delete_columns -%}
 {%- set data_columns = columns + pk_list -%}
 
@@ -45,7 +40,7 @@ USING (
             CASE WHEN tgt.{{ pk_list | first }} IS NULL THEN 99
                 WHEN {{ hash(columns, mode='normal') }} THEN 1
                 ELSE 0 END                                        AS data_change
-        FROM {{ source_query }} AS src
+        FROM {{ prepare_source(source, query) }} AS src
         LEFT JOIN {{ catalog }}.{{ schema }}.{{ table }}          AS tgt
             ON  {{ columns | map_fmt("tgt.{0} = src.{0}") | join('\n\t\t\tAND ') }}
     )

@@ -2,20 +2,25 @@
 {% include "utils/etl_vars.jinja" with context %}
 {{ raise_undefined('pk') if pk is undefined }}
 {% import "databricks/macros/delta.jinja" as delta %}
+{% from "databricks/macros/utils.jinja" import hash, prepare_source %}
+
 {% if pk is iterable and pk is not string and pk is not mapping %}
     {%- set pk_list = pk -%}
 {% else %}
     {%- set pk_list = [pk] -%}
 {% endif %}
+
 {%- set all_columns = columns + pk_list + etl_columns -%}
 {%- set data_columns = columns + pk_list -%}
-{% if source is defined %}
-    {%- set source_query = source|trim -%}
-{% elif query is defined %}
-    {%- set source_query = '( {} )'.format(query) -%}
-{% else %}
-    {{ raise_undefined('source|query') }}
-{% endif %}
+
+{% block revert_statement %}
+DELETE FROM {{ catalog }}.{{ schema }}.{{ table }}
+WHERE
+    load_src        = '{{ load_src }}'
+    AND load_date   = {{ load_date | dt_fmt('%Y%m%d') }}
+;
+{% endblock revert_statement %}
+
 {% block statement %}
 MERGE INTO {{ catalog }}.{{ schema }}.{{ table }} AS target
 USING (
@@ -23,9 +28,9 @@ USING (
         SELECT
             src.*,
         CASE WHEN tgt.{{ pk_list | first }} IS NULL THEN 99
-             WHEN hash({{ columns | map_fmt('src.{0}') | join(', ') }}) <> hash({{ columns | map_fmt('tgt.{0}') | join(', ') }}) THEN 1
+             WHEN {{ hash(columns, mode='normal') }} THEN 1
              ELSE 0 END AS data_change
-        FROM {{ source_query }} AS src
+        FROM {{ prepare_source(source, query) }} AS src
         LEFT JOIN {{ catalog }}.{{ schema }}.{{ table }} AS tgt
             ON  {{ columns | map_fmt("tgt.{0} = src.{0}") | join('\n\t\t\tAND ') }}
     )
@@ -48,4 +53,5 @@ WHEN NOT MATCHED THEN INSERT
         {{ load_id }},
         to_timestamp('{{ load_date | dt_fmt('%Y%m%d') }}', 'yyyyMMdd')
     )
+;
 {% endblock statement %}
