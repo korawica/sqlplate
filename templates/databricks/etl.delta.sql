@@ -1,4 +1,5 @@
-{% include "utils/etl_vars.jinja" %}
+{% extends "base.jinja" %}
+{% include "utils/etl_vars.jinja" with context %}
 {{ raise_undefined('pk') if pk is undefined }}
 {% import "databricks/macros/delta.jinja" as delta %}
 {%- set etl_columns = ['load_src', 'load_id', 'load_date', 'updt_load_src', 'updt_load_id', 'updt_load_date'] -%}
@@ -7,6 +8,8 @@
 {% else %}
     {%- set pk_list = [pk] -%}
 {% endif %}
+{%- set all_columns = columns + pk_list + etl_columns -%}
+{%- set data_columns = columns + pk_list -%}
 {% if source is defined %}
     {%- set source_query = source|trim -%}
 {% elif query is defined %}
@@ -14,8 +17,7 @@
 {% else %}
     {{ raise_undefined('source|query') }}
 {% endif %}
-{%- set all_columns = columns + pk_list + etl_columns -%}
-{%- set data_columns = columns + pk_list -%}
+{% block statement %}
 MERGE INTO {{ catalog }}.{{ schema }}.{{ table }} AS target
 USING (
     WITH change_query AS (
@@ -47,3 +49,4 @@ WHEN NOT MATCHED THEN INSERT
         {{ load_id }},
         to_timestamp('{{ load_date | dt_fmt('%Y%m%d') }}', 'yyyyMMdd')
     )
+{% endblock statement %}
