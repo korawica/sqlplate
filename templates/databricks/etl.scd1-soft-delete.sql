@@ -65,7 +65,7 @@ THEN INSERT
         {{ all_columns | join(', ') }}
     )
     VALUES (
-        {{ data_columns | map_fmt('source.{0}') | join(',\n\t\t') }},
+        {{ data_columns | map_fmt('source.{0}') | join(',\n        ') }},
         0,
         '{{ load_src }}',
         {{ load_id }},

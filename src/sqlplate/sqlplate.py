@@ -10,7 +10,7 @@ from typing import Any, Iterator
 
 from jinja2 import Template
 
-from .conf import BaseConf
+from .conf import Config
 from .exceptions import TemplateNotSet
 from .utils import get_env, remove_sql_comment
 
@@ -30,6 +30,7 @@ class SQLPlate:
 
         self.path: Path = path
         self._template_name: str | None = None
+        self._template_type: str | None = None
         self._template: Template | None = None
         self._option: dict[str, Any] = {}
 
@@ -48,6 +49,10 @@ class SQLPlate:
     def template(self, name: str) -> 'SQLPlate':
         """Create template object attribute on this instance."""
         self._template_name: str = name
+
+        if '.' in name and name.count('.') == 1:
+            self._template_type, _ = name.split('.', maxsplit=1)
+
         self._template: Template = (
             get_env(self.path).get_template(f'{self.name}/{name}.sql')
         )
@@ -83,7 +88,7 @@ class SQLPlate:
             self._template.render(
                 **(
                     {"_system": self.name, "_template": self._template_name}
-                    | BaseConf.export()
+                    | Config.export(self._template_type)
                     | self._option
                     | kwargs
                 )

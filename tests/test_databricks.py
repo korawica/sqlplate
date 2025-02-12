@@ -231,8 +231,8 @@ def test_sql_scd1_soft_delete(template_path):
             )
             VALUES (
                 source.col01,
-        source.col02,
-        source.pk_col,
+                source.col02,
+                source.pk_col,
                 0,
                 'SOURCE_FOO',
                 1,
@@ -295,8 +295,8 @@ def test_sql_scd1_soft_delete(template_path):
             )
             VALUES (
                 source.col01,
-        source.col02,
-        source.pk_col,
+                source.col02,
+                source.pk_col,
                 0,
                 'SOURCE_FOO',
                 1,
