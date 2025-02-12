@@ -1,0 +1,45 @@
+name: SQL Template
+description: Request New SQL Template 📜
+labels: [enhancement]
+body:
+  - type: textarea
+    id: template
+    attributes:
+      label: Template SQL
+      description: |
+        Please add the template SQL statement here.
+
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description & Usage
+      description: |
+        
+        Write a short description telling me what you are doing, what you expect to happen, and what is currently happening.
+
+    validations:
+      required: true
+
+  - type: input
+    id: system-type
+    attributes:
+      label: SQLPlate System
+      description: |
+        What SQLPlate system that you want to store this template?
+
+    validations:
+      required: true
+
+  - type: input
+    id: jinja-version
+    attributes:
+      label: Jinja2 Version
+      description: |
+        ```bash
+        python -c "from jinja2 import __version__; print(__version__)"
+        ```
+
+    validations:
+      required: true
