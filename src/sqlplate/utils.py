@@ -65,6 +65,9 @@ def get_env(
 def remove_sql_comment(statement: str):
     """Remove comment statement in a SQL template.
 
+    Args:
+        statement (str): A SQL statement.
+
     Example:
 
         >>> remove_sql_comment("SELECT * FROM table -- this is comment")
@@ -74,7 +77,7 @@ def remove_sql_comment(statement: str):
         ...     "SELECT /* comment\\n"
         ...     "more comment */ FROM table"
         ... )
-        'SELECT\nFROM table'
+        'SELECT\\nFROM table'
 
     """
     statement: str = re.sub(r'^\s*--.*\n?', '', statement, flags=re.MULTILINE)

@@ -32,4 +32,5 @@ class BaseConf:
             "etl_columns": cls.etl_columns,
             "scd1_soft_delete_columns": cls.scd1_soft_delete_columns,
             "scd2_columns": cls.scd2_columns,
+            "only_main": False,
         }
