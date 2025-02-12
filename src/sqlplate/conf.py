@@ -5,16 +5,31 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+from typing import Any
+
 
 class BaseConf:
-    scd2_columns: list[str] = [
-        'start_dt',
-        'end_dt',
-        'delete_f',
-        'prcs_nm',
-        'prcs_ld_id',
-        'asat_dt',
-        'updt_prcs_nm',
-        'updt_prcs_ld_id',
-        'updt_asat_dt',
+    etl_columns: list[str] = [
+        "load_src",
+        "load_id",
+        "load_date",
+        "updt_load_src",
+        "updt_load_id",
+        "updt_load_date",
     ]
+
+    scd1_soft_delete_columns: list[str] = ["delete_f"] + etl_columns
+
+    scd2_columns: list[str] = [
+        "start_date",
+        "end_date",
+        "delete_f",
+    ] + etl_columns
+
+    @classmethod
+    def export(cls) -> dict[str, Any]:
+        return {
+            "etl_columns": cls.etl_columns,
+            "scd1_soft_delete_columns": cls.scd1_soft_delete_columns,
+            "scd2_columns": cls.scd2_columns,
+        }

@@ -10,6 +10,7 @@ from typing import Any, Iterator
 
 from jinja2 import Template
 
+from .conf import BaseConf
 from .exceptions import TemplateNotSet
 from .utils import get_env, remove_sql_comment
 
@@ -82,6 +83,7 @@ class SQLPlate:
             self._template.render(
                 **(
                     {"_system": self.name, "_template": self._template_name}
+                    | BaseConf.export()
                     | self._option
                     | kwargs
                 )

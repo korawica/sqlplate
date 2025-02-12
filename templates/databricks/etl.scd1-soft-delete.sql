@@ -1,8 +1,6 @@
 {% include "utils/etl_vars.jinja" %}
 {{ raise_undefined('pk') if pk is undefined }}
 {% import "databricks/macros/scd1.jinja" as scd1 %}
-{%- set etl_columns = ['load_src', 'load_id', 'load_date', 'updt_load_src', 'updt_load_id', 'updt_load_date'] -%}
-{%- set scd1_columns = ['delete_f'] + etl_columns -%}
 {% if pk is iterable and pk is not string and pk is not mapping %}
     {%- set pk_list = pk -%}
 {% else %}
@@ -15,7 +13,7 @@
 {% else %}
     {{ raise_undefined('source|query') }}
 {% endif %}
-{%- set all_columns = columns + pk_list + scd1_columns -%}
+{%- set all_columns = columns + pk_list + scd1_soft_delete_columns -%}
 {%- set data_columns = columns + pk_list -%}
 MERGE INTO {{ catalog }}.{{ schema }}.{{ table }} AS target
 USING (
