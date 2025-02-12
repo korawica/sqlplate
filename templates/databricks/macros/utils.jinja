@@ -1,0 +1,7 @@
+{% macro hash(columns, mode='normal') -%}
+    {%- if mode == 'normal' -%}
+        hash({{ columns | map_fmt('src.{0}') | join(', ') }}) <> hash({{ columns | map_fmt('tgt.{0}') | join(', ') }})
+    {%- elif mode == 'md5' -%}
+        md5(concat_ws('|', {{ columns | map_fmt("COALESCE(CAST(src.{0} AS string), '')") | join(', ') }})) <> md5(concat_ws('|', {{ columns | map_fmt("COALESCE(CAST(tgt.{0} AS string), '')") | join(', ') }}))
+    {%- endif -%}
+{%- endmacro %}

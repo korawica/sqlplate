@@ -2,6 +2,7 @@
 {% include "utils/etl_vars.jinja" %}
 {{ raise_undefined('pk') if pk is undefined }}
 {% import "databricks/macros/scd1.jinja" as scd1 %}
+{% from "databricks/macros/utils.jinja" import hash %}
 {% if pk is iterable and pk is not string and pk is not mapping %}
     {%- set pk_list = pk -%}
 {% else %}
@@ -42,7 +43,7 @@ USING (
         SELECT
             src.*,
             CASE WHEN tgt.{{ pk_list | first }} IS NULL THEN 99
-                WHEN hash({{ columns | map_fmt('src.{0}') | join(', ') }}) <> hash({{ columns | map_fmt('tgt.{0}') | join(', ') }}) THEN 1
+                WHEN {{ hash(columns, mode='normal') }} THEN 1
                 ELSE 0 END                                        AS data_change
         FROM {{ source_query }} AS src
         LEFT JOIN {{ catalog }}.{{ schema }}.{{ table }}          AS tgt
