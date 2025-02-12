@@ -10,8 +10,8 @@ from typing import Any
 
 from jinja2 import Template
 
-from .utils import get_env
 from .exceptions import TemplateNotSet
+from .utils import get_env, remove_sql_comment
 
 
 class SQLPlate:
@@ -65,11 +65,22 @@ class SQLPlate:
         self._option = self._option | values
         return self
 
-    def load(self) -> str:
-        """Generate the SQL statement from its template setup."""
+    def load(self, remove_comment: bool = False, **kwargs) -> str:
+        """Generate the SQL statement from its template setup.
+
+        Args:
+            - remove_comment (bool): Remove comment after the template render.
+        """
         if self._template is None:
             raise TemplateNotSet(
                 "Template object does not create before load, you should use "
                 "`.template(name=?)`."
             )
-        return self._template.render(**self._option).strip().strip('\n')
+        render: str = (
+            self._template.render(**(self._option | kwargs))
+            .strip()
+            .strip('\n')
+        )
+        if remove_comment:
+            return remove_sql_comment(render)
+        return render

@@ -5,6 +5,7 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+import re
 from datetime import datetime
 from pathlib import Path
 
@@ -36,6 +37,7 @@ def dt_fmt(value: datetime, fmt: str) -> str:
 
 def get_env(
     path: Path,
+    *,
     trim_blocks: bool = True,
     lstrip_blocks: bool = True,
 ) -> Environment:
@@ -58,3 +60,46 @@ def get_env(
     env.filters['dt_fmt'] = dt_fmt
     env.globals['raise_undefined'] = raise_undefined
     return env
+
+
+def remove_sql_comment(statement: str):
+    """Remove comment statement in a SQL template.
+
+    Example:
+
+        >>> remove_sql_comment("SELECT * FROM table -- this is comment")
+        'SELECT * FROM table'
+
+        >>> remove_sql_comment(
+        ...     "SELECT /* comment\\n"
+        ...     "more comment */ FROM table"
+        ... )
+        'SELECT\nFROM table'
+
+    """
+    statement: str = re.sub(r'^\s*--.*\n?', '', statement, flags=re.MULTILINE)
+    statement: str = re.sub(r'\s*--.*\n?', '', statement, flags=re.MULTILINE)
+
+    comment_re = re.compile(
+        r'(^)?[^\S\n]*/(?:\*(.*?)\*/[^\S\n]*|/[^\n]*)($)?',
+        re.DOTALL | re.MULTILINE,
+    )
+
+    def comment_replacer(match):
+        start, mid, end = match.group(1, 2, 3)
+        if mid is None:
+            # NOTE: single line comment
+            return ''
+        elif start is not None or end is not None:
+            # NOTE: multi line comment at start or end of a line
+            return ''
+        elif '\n' in mid:
+            # NOTE: multi line comment with line break
+            return '\n'
+        else:
+            # NOTE: multi line comment without line break
+            return ' '
+
+    statement = comment_re.sub(comment_replacer, statement)
+    return statement
+
