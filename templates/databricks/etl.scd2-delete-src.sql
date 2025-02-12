@@ -1,50 +1,8 @@
-{% include "utils/etl_vars.jinja" %}
-MERGE INTO {{ catalog }}.{{ schema }}.{{ table }} AS target
-USING (
-    WITH change_query AS (
-        SELECT
-            src.*,
-            CASE WHEN tgt.es_id IS NULL THEN 99
-                WHEN hash({_p_col_without_pk_src_str}) <> hash({_p_col_without_pk_tgt_str}) THEN 1
-                ELSE 0 END AS data_change
-        FROM ( {query} ) AS src
-        LEFT JOIN {{ catalog }}.{{ schema }}.{{ table }} AS tgt
-            ON tgt.end_dt = '9999-12-31'
-            AND {' AND '.join(_p_pk_cols_pairs)}
-    )
-    SELECT {', '.join(_p_pk_cols_merge)}, * FROM change_query WHERE data_change IN (0, 1)
-    UNION ALL
-    SELECT {', '.join(_p_pk_cols_merge_null)}, * FROM change_query WHERE data_change = (1, 99)
-) AS source
-    ON {' AND '.join(_p_pk_cols_scd)}
-WHEN MATCHED AND source.data_change = 1
-THEN UPDATE
-    SET {', '.join(_p_col_update)}
-    ,   target.end_dt                   = DATEADD(DAY, -1, to_timestamp('{p_asat_dt}', 'yyyyMMdd'))
-    ,   target.updt_prcs_nm             = '{p_process_name}'
-    ,   target.updt_prcs_ld_id          = {p_process_load_id}
-    ,   target.updt_asat_dt             = {p_asat_dt}
-WHEN NOT MATCHED AND source.data_change IN (1, 99)
-THEN INSERT
-    ( {', '.join(i.name for i in rs_col_all)} )
-VALUES (
-    {', '.join('source.' + i.name for i in rs_col_real)}
-    ,   to_timestamp('{p_asat_dt}', 'yyyyMMdd')
-    ,   to_timestamp('9999-12-31', 'yyyy-MM-dd')
-    ,   0
-    ,   '{p_process_name}'
-    ,   {p_process_load_id}
-    ,   {p_asat_dt}
-    ,   '{p_process_name}'
-    ,   {p_process_load_id}
-    ,   to_timestamp('{p_asat_dt}', 'yyyyMMdd')
-)
+{% include "databricks/etl.scd2.sql" %}
+{% import "databricks/macros/scd2.jinja" as scd2 +%}
 WHEN NOT MATCHED BY SOURCE
     AND target.end_dt   = to_timestamp('9999-12-31', 'yyyy-MM-dd')
     AND target.prcs_nm  = '{p_process_name}'
 THEN UPDATE
     SET target.delete_f         = 1
-    ,   target.end_dt           = DATEADD(DAY, -1, to_timestamp('{p_asat_dt}', 'yyyyMMdd'))
-    ,   target.updt_prcs_nm     = '{p_process_name}'
-    ,   target.updt_prcs_ld_id  = {p_process_load_id}
-    ,   target.updt_asat_dt     = to_timestamp('{p_asat_dt}', 'yyyyMMdd')
+    {{ scd2.sys_update_match(load_src, load_id, load_date) }}

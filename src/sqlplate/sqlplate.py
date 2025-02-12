@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterator
 
 from jinja2 import Template
 
@@ -28,6 +28,7 @@ class SQLPlate:
             raise FileNotFoundError(f"Path {path} does not exists.")
 
         self.path: Path = path
+        self._template_name: str | None = None
         self._template: Template | None = None
         self._option: dict[str, Any] = {}
 
@@ -45,6 +46,7 @@ class SQLPlate:
 
     def template(self, name: str) -> 'SQLPlate':
         """Create template object attribute on this instance."""
+        self._template_name: str = name
         self._template: Template = (
             get_env(self.path).get_template(f'{self.name}/{name}.sql')
         )
@@ -71,16 +73,44 @@ class SQLPlate:
         Args:
             - remove_comment (bool): Remove comment after the template render.
         """
-        if self._template is None:
+        if self._template_name is None or self._template is None:
             raise TemplateNotSet(
                 "Template object does not create before load, you should use "
                 "`.template(name=?)`."
             )
         render: str = (
-            self._template.render(**(self._option | kwargs))
+            self._template.render(
+                **(
+                    {"_system": self.name, "_template": self._template_name}
+                    | self._option
+                    | kwargs
+                )
+            )
             .strip()
             .strip('\n')
         )
         if remove_comment:
             return remove_sql_comment(render)
         return render
+
+    def stream(
+        self,
+        remove_comment: bool = False,
+        split_char: str = ';',
+        **kwargs
+    ) -> Iterator[str]:
+        """Return the iterator of sub-statement that split with ';' charactor.
+
+        Args:
+            - remove_comment (bool): Remove comment after the template render.
+            - split_char (str): A charactor that want to split from the full
+                statement. Default is ';'.
+        """
+        yield from (
+            s.strip().strip('\n')
+            for s in (
+                self.load(remove_comment=remove_comment, **kwargs)
+                .split(split_char)
+            )
+            if s.strip().strip('\n') != ''
+        )

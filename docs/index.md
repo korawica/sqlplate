@@ -10,6 +10,8 @@ format that is the powerful template tool package.
 ```text
 📂templates/
    ├─ 📂databricks/
+   │     ├─ 📂macros/
+   │     │     ╰─ ⚙️delta.jinja
    │     ├─ 📜etl.delta.sql
    │     ├─ 📜etl.scd2.sql
    │     ╰─ 📜select.sql

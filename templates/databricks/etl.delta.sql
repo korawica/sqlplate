@@ -1,6 +1,6 @@
 {% include "utils/etl_vars.jinja" %}
 {{ raise_undefined('pk') if pk is undefined }}
-{% import "macros/delta.jinja" as delta %}
+{% import "databricks/macros/delta.jinja" as delta %}
 {%- set etl_columns = ['load_src', 'load_id', 'load_date', 'updt_load_src', 'updt_load_id', 'updt_load_date'] -%}
 {% if pk is iterable and pk is not string and pk is not mapping %}
     {%- set pk_list = pk -%}

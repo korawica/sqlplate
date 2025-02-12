@@ -1,0 +1,6 @@
+{% macro sys_update_match(load_src, load_id, load_date) -%}
+    ,   target.end_dt           = DATEADD(DAY, -1, to_timestamp('{{ load_date | dt_fmt('%Y%m%d') }}', 'yyyyMMdd'))
+    ,   target.updt_load_src    = '{{ load_src }}'
+    ,   target.updt_load_id     = {{ load_id }}
+    ,   target.updt_load_date   = to_timestamp('{{ load_date | dt_fmt('%Y%m%d') }}', 'yyyyMMdd')
+{%- endmacro %}

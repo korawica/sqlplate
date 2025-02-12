@@ -1,6 +1,6 @@
 {% include "utils/etl_vars.jinja" %}
 {{ raise_undefined('pk') if pk is undefined }}
-{% import "macros/delta.jinja" as delta %}
+{% import "databricks/macros/scd1.jinja" as scd1 %}
 {%- set etl_columns = ['load_src', 'load_id', 'load_date', 'updt_load_src', 'updt_load_id', 'updt_load_date'] -%}
 {%- set scd1_columns = ['delete_f'] + etl_columns -%}
 {% if pk is iterable and pk is not string and pk is not mapping %}
@@ -15,7 +15,7 @@
 {% else %}
     {{ raise_undefined('source|query') }}
 {% endif %}
-{%- set all_columns = columns + pk_list + etl_columns -%}
+{%- set all_columns = columns + pk_list + scd1_columns -%}
 {%- set data_columns = columns + pk_list -%}
 MERGE INTO {{ catalog }}.{{ schema }}.{{ table }} AS target
 USING (
@@ -34,13 +34,11 @@ USING (
     ON  {{ pk_list | map_fmt('target.{0} = source.{0}') | join('\n\tAND ') }}
 WHEN MATCHED AND data_change = 1
 THEN UPDATE
-    SET {', '.join(_p_col_update)}
-    ,   target.delete_f         = 0
-    {{ delta.sys_update_match(load_src, load_id, load_date) }}
+    SET {{ columns | map_fmt("target.{0}\t\t\t= source.{0}") | join('\n\t,\t') }}
+    ,   {{ scd1.sys_update_match(load_src, load_id, load_date) }}
 WHEN MATCHED AND data_change = 0 AND target.delete_f = 1
 THEN UPDATE
-    SET target.delete_f         = 0
-    {{ delta.sys_update_match(load_src, load_id, load_date) }}
+    SET {{ scd1.sys_update_match(load_src, load_id, load_date) }}
 WHEN NOT MATCHED AND data_change = 99
 THEN INSERT
     (
@@ -58,5 +56,4 @@ THEN INSERT
     )
 WHEN NOT MATCHED BY SOURCE AND target.delete_f = 0
 THEN UPDATE
-    SET target.delete_f         = 1
-    {{ delta.sys_update_match(load_src, load_id, load_date) }}
+    SET {{ scd1.sys_update_match(load_src, load_id, load_date, 1) }}
