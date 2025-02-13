@@ -48,6 +48,7 @@ statement: str = (
     .option('load_src', 'SOURCE_FOO')
     .option('load_id', 1)
     .option('load_date', datetime(2025, 2, 1, 10))
+    .option('only_main', True)
     .load()
 )
 print(statement.strip().strip('\n'))
@@ -93,19 +94,26 @@ WHEN NOT MATCHED THEN INSERT
         1,
         to_timestamp('20250201', 'yyyyMMdd')
     )
+;
 ```
 
 ## :chains: Support Systems
 
-| System     | Progress |       Templates       | Remark  |
-|:-----------|:--------:|:---------------------:|---------|
-| databricks |    🟡    | etl.delta<br>etl.scd2 |         |
-| sqlite     |    🟡    |                       |         |
+| System     | Status | Remark  |
+|:-----------|:------:|---------|
+| databricks |   🟡   |         |
+| postgres   |   🔴   |         |
+| mysql      |   🔴   |         |
+| mssql      |   🔴   |         |
+| synapse    |   🔴   |         |
+| bigquery   |   🔴   |         |
+| snowflake  |   🔴   |         |
+| sqlite     |   🟡   |         |
 
 > [!NOTE]
 > - 🟢 Complete
 > - 🟡 In progress
-> - 🔴 Does not develop
+> - 🔴 Does not develop yet
 > - 🟣 Does not plan to support
 
 ## :speech_balloon: Contribute
