@@ -28,6 +28,9 @@ class SQLPlate:
         if not path.exists():
             raise FileNotFoundError(f"Path {path} does not exists.")
 
+        if not (path / self.name).exists():
+            raise FileNotFoundError(f"Format {self.name!r} does not implement.")
+
         self.path: Path = path
 
         # NOTE: Make default arguments.
@@ -35,6 +38,17 @@ class SQLPlate:
         self._template_type: Optional[str] = None
         self._template: Optional[Template] = None
         self._option: dict[str, Any] = {}
+
+    @staticmethod
+    def formats(path: Optional[Path] = None) -> list[str]:
+        """Return supported formats"""
+        if path is None:
+            path: Path = Path('./templates')
+        return [
+            fmt.name
+            for fmt in path.glob(pattern='*')
+            if fmt.is_dir() and fmt.name != 'utils'
+        ]
 
     @classmethod
     def format(cls, name: str, path: Optional[Path] = None) -> 'SQLPlate':
