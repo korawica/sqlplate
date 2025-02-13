@@ -259,7 +259,6 @@ def test_sql_full_dump(template_path):
         .option('query', 'SELECT * FROM catalog-name.schema-name.source-name')
         .load()
     )
-    print(prepare(statement))
     assert prepare(statement) == dedent("""
         DELETE FROM catalog-name.schema-name.table-name
         WHERE load_src = 'SOURCE_FOO'

@@ -6,13 +6,16 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Iterator, Optional
+from typing import Any, Iterator, Optional, Callable
 
 from jinja2 import Template
 
 from .conf import config
 from .exceptions import TemplateNotSet
 from .utils import get_env, remove_sql_comment
+
+
+trim: Callable[[str], str] = lambda x: x.strip().strip('\n')
 
 
 class SQLPlate:
@@ -100,17 +103,15 @@ class SQLPlate:
                 "Template object does not create before load, you should use "
                 "`.template(name=?)`."
             )
-        render: str = (
+        render: str = trim(
             self._template.render(
                 **(
                     {"_system": self.name, "_template": self._template_name}
                     | config().export(self._template_type)
                     | self._option
                     | kwargs
-                )
+                ),
             )
-            .strip()
-            .strip('\n')
         )
         if remove_comment:
             return remove_sql_comment(render)
@@ -130,10 +131,10 @@ class SQLPlate:
                 statement. Default is ';'.
         """
         yield from (
-            s.strip().strip('\n')
+            trim(s)
             for s in (
                 self.load(remove_comment=remove_comment, **kwargs)
                 .split(split_char)
             )
-            if s.strip().strip('\n') != ''
+            if trim(s) != ''
         )
