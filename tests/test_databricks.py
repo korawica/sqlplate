@@ -7,7 +7,7 @@ import pytest
 from jinja2.exceptions import UndefinedError
 from src.sqlplate import SQLPlate
 
-from tests.utils import prepare_statement
+from tests.utils import prepare
 
 
 @pytest.fixture(scope='module')
@@ -78,7 +78,7 @@ def test_sql_delta(template_path, respect_databricks):
         .option('query', 'SELECT * FROM catalog-name.schema-name.source-name')
         .load()
     )
-    assert prepare_statement(statement) == respect_databricks('etl.delta.query')
+    assert prepare(statement) == respect_databricks('etl.delta.query')
 
     statement: str = (
         select_sql
@@ -86,10 +86,10 @@ def test_sql_delta(template_path, respect_databricks):
         .option('source', 'catalog-name.schema-name.source-name')
         .load()
     )
-    assert prepare_statement(statement) == respect_databricks('etl.delta')
+    assert prepare(statement) == respect_databricks('etl.delta')
 
 
-def test_sql_scd1_soft_delete(template_path):
+def test_sql_scd1_soft_delete(template_path, respect_databricks):
     select_sql: SQLPlate = (
         SQLPlate.format('databricks', path=template_path)
         .template('etl.scd1-soft-delete')
@@ -107,77 +107,7 @@ def test_sql_scd1_soft_delete(template_path):
         .option('query', 'SELECT * FROM catalog-name.schema-name.source-name')
         .load()
     )
-    assert prepare_statement(statement) == dedent("""
-        DELETE FROM catalog-name.schema-name.table-name
-        WHERE
-            load_date >= 20250201,
-            AND load_src = 'SOURCE_FOO'
-        ;
-        UPDATE catalog-name.schema-name.table-name
-            SET delete_f        = 0
-            ,   updt_load_src   = 'SOURCE_FOO'
-            ,   updt_load_id    = 1
-            ,   updt_load_date  = to_timestamp('20250201', 'yyyyMMdd')
-        WHERE
-            delete_f            = 1
-            AND updt_load_src   = 'SOURCE_FOO'
-            AND updt_load_date  >= to_timestamp('20250201', 'yyyyMMdd')
-        ;
-        MERGE INTO catalog-name.schema-name.table-name AS target
-        USING (
-            WITH change_query AS (
-                SELECT
-                    src.*,
-                    CASE WHEN tgt.pk_col IS NULL THEN 99
-                        WHEN hash(src.col01, src.col02) <> hash(tgt.col01, tgt.col02) THEN 1
-                        ELSE 0 END                                        AS data_change
-                FROM ( SELECT * FROM catalog-name.schema-name.source-name ) AS src
-                LEFT JOIN catalog-name.schema-name.table-name          AS tgt
-                    ON  tgt.col01 = src.col01
-        AND tgt.col02 = src.col02
-            )
-            SELECT * FROM change_query
-        ) AS source
-            ON  target.pk_col = source.pk_col
-        WHEN MATCHED AND data_change = 1
-        THEN UPDATE
-            SET target.col01= source.col01
-        ,target.col02= source.col02
-            ,   target.delete_f         = 0
-            ,   target.updt_load_src    = 'SOURCE_FOO'
-            ,   target.updt_load_id     = 1
-            ,   target.updt_load_date   = to_timestamp('20250201', 'yyyyMMdd')
-        WHEN MATCHED AND data_change = 0 AND target.delete_f = 1
-        THEN UPDATE
-            SET target.delete_f         = 0
-            ,   target.updt_load_src    = 'SOURCE_FOO'
-            ,   target.updt_load_id     = 1
-            ,   target.updt_load_date   = to_timestamp('20250201', 'yyyyMMdd')
-        WHEN NOT MATCHED AND data_change = 99
-        THEN INSERT
-            (
-                col01, col02, pk_col, delete_f, load_src, load_id, load_date, updt_load_src, updt_load_id, updt_load_date
-            )
-            VALUES (
-                source.col01,
-                source.col02,
-                source.pk_col,
-                0,
-                'SOURCE_FOO',
-                1,
-                20250201,
-                'SOURCE_FOO',
-                1,
-                to_timestamp('20250201', 'yyyyMMdd')
-            )
-        WHEN NOT MATCHED BY SOURCE AND target.delete_f = 0
-        THEN UPDATE
-            SET target.delete_f         = 1
-            ,   target.updt_load_src    = 'SOURCE_FOO'
-            ,   target.updt_load_id     = 1
-            ,   target.updt_load_date   = to_timestamp('20250201', 'yyyyMMdd')
-        ;
-        """).strip('\n')
+    assert prepare(statement) == respect_databricks('etl.scd1-soft-delete')
 
     assert len(list(select_sql.stream())) == 3
 
@@ -186,66 +116,14 @@ def test_sql_scd1_soft_delete(template_path):
         .option('only_main', True)
         .load()
     )
-    assert prepare_statement(statement) == dedent("""
-        MERGE INTO catalog-name.schema-name.table-name AS target
-        USING (
-            WITH change_query AS (
-                SELECT
-                    src.*,
-                    CASE WHEN tgt.pk_col IS NULL THEN 99
-                        WHEN hash(src.col01, src.col02) <> hash(tgt.col01, tgt.col02) THEN 1
-                        ELSE 0 END                                        AS data_change
-                FROM ( SELECT * FROM catalog-name.schema-name.source-name ) AS src
-                LEFT JOIN catalog-name.schema-name.table-name          AS tgt
-                    ON  tgt.col01 = src.col01
-        AND tgt.col02 = src.col02
-            )
-            SELECT * FROM change_query
-        ) AS source
-            ON  target.pk_col = source.pk_col
-        WHEN MATCHED AND data_change = 1
-        THEN UPDATE
-            SET target.col01= source.col01
-        ,target.col02= source.col02
-            ,   target.delete_f         = 0
-            ,   target.updt_load_src    = 'SOURCE_FOO'
-            ,   target.updt_load_id     = 1
-            ,   target.updt_load_date   = to_timestamp('20250201', 'yyyyMMdd')
-        WHEN MATCHED AND data_change = 0 AND target.delete_f = 1
-        THEN UPDATE
-            SET target.delete_f         = 0
-            ,   target.updt_load_src    = 'SOURCE_FOO'
-            ,   target.updt_load_id     = 1
-            ,   target.updt_load_date   = to_timestamp('20250201', 'yyyyMMdd')
-        WHEN NOT MATCHED AND data_change = 99
-        THEN INSERT
-            (
-                col01, col02, pk_col, delete_f, load_src, load_id, load_date, updt_load_src, updt_load_id, updt_load_date
-            )
-            VALUES (
-                source.col01,
-                source.col02,
-                source.pk_col,
-                0,
-                'SOURCE_FOO',
-                1,
-                20250201,
-                'SOURCE_FOO',
-                1,
-                to_timestamp('20250201', 'yyyyMMdd')
-            )
-        WHEN NOT MATCHED BY SOURCE AND target.delete_f = 0
-        THEN UPDATE
-            SET target.delete_f         = 1
-            ,   target.updt_load_src    = 'SOURCE_FOO'
-            ,   target.updt_load_id     = 1
-            ,   target.updt_load_date   = to_timestamp('20250201', 'yyyyMMdd')
-        ;
-        """).strip('\n')
+    assert (
+        prepare(statement)
+        == respect_databricks('etl.scd1-soft-delete.only-main')
+    )
 
     assert len(list(select_sql.stream())) == 1
 
-def test_sql_scd2(template_path):
+def test_sql_scd2(template_path, respect_databricks):
     select_sql: SQLPlate = (
         SQLPlate.format('databricks', path=template_path)
         .template('etl.scd2')
@@ -263,74 +141,10 @@ def test_sql_scd2(template_path):
         .option('query', 'SELECT * FROM catalog-name.schema-name.source-name')
         .load()
     )
-    assert prepare_statement(statement) == dedent("""
-        DELETE FROM catalog-name.schema-name.table-name
-        WHERE
-            load_date >= 20250201,
-            AND load_src = 'SOURCE_FOO'
-        ;
-        UPDATE catalog-name.schema-name.table-name
-            SET end_dt          = '9999-12-31'
-            ,   delete_f        = 0
-            ,   updt_load_src   = 'SOURCE_FOO'
-            ,   updt_load_id    = 1
-            ,   updt_load_date  = to_timestamp('20250201', 'yyyyMMdd')
-        WHERE
-            end_dt              = DATEADD(DAY, -1, to_timestamp('20250201', 'yyyyMMdd'))
-            AND updt_load_src   = 'SOURCE_FOO'
-            AND updt_load_date  >= to_timestamp('20250201', 'yyyyMMdd')
-        ;
-        MERGE INTO catalog-name.schema-name.table-name AS target
-        USING (
-            WITH change_query AS (
-                SELECT
-                    src.*,
-                    CASE WHEN tgt.pk_col IS NULL THEN 99
-                        WHEN hash(src.col01, src.col02) <> hash(tgt.col01, tgt.col02) THEN 1
-                        ELSE 0 END AS data_change
-                FROM ( SELECT * FROM catalog-name.schema-name.source-name ) AS src
-                LEFT JOIN catalog-name.schema-name.{p_table_name} AS tgt
-                    ON tgt.end_dt = '9999-12-31'
-                    AND tgt.col01 = src.col01
-        AND tgt.col02 = src.col02
-            )
-            SELECT pk_col AS merge_pk_col, * FROM change_query WHERE data_change == 1
-            UNION ALL
-            SELECT null AS merge_pk_col, * FROM change_query WHERE data_change = (1, 99)
-        ) AS source
-            ON target.pk_col = source.merge_pk_col
-        WHEN MATCHED AND source.data_change = 1
-        THEN UPDATE
-            SET target.col01= source.col01
-        ,target.col02= source.col02
-            ,   target.end_dt           = DATEADD(DAY, -1, to_timestamp('20250201', 'yyyyMMdd'))
-            ,   target.updt_load_src    = 'SOURCE_FOO'
-            ,   target.updt_load_id     = 1
-            ,   target.updt_load_date   = to_timestamp('20250201', 'yyyyMMdd')
-        WHEN NOT MATCHED AND source.data_change IN (1, 99)
-        THEN INSERT
-            (
-                col01, col02, pk_col, start_date, end_date, delete_f, load_src, load_id, load_date, updt_load_src, updt_load_id, updt_load_date
-            )
-        VALUES (
-            source.col01
-        ,source.col02
-        ,source.pk_col
-            ,   to_timestamp('20250201', 'yyyyMMdd')
-            ,   to_timestamp('9999-12-31', 'yyyy-MM-dd')
-            ,   0
-            ,   'SOURCE_FOO'
-            ,   1
-            ,   20250201
-            ,   'SOURCE_FOO'
-            ,   1
-            ,   to_timestamp('20250201', 'yyyyMMdd')
-        )
-        ;
-        """).strip('\n')
+    assert prepare(statement) == respect_databricks('etl.scd2')
 
 
-def test_sql_scd2_delete_src(template_path):
+def test_sql_scd2_delete_src(template_path, respect_databricks):
     select_sql: SQLPlate = (
         SQLPlate.format('databricks', path=template_path)
         .template('etl.scd2-delete-src')
@@ -348,81 +162,47 @@ def test_sql_scd2_delete_src(template_path):
         .option('query', 'SELECT * FROM catalog-name.schema-name.source-name')
         .load()
     )
-    assert prepare_statement(statement) == dedent("""
+    assert prepare(statement) == respect_databricks('etl.scd2-delete-src')
+
+
+def test_sql_scd2_transaction(template_path):
+    select_sql: SQLPlate = (
+        SQLPlate.format('databricks', path=template_path)
+        .template('etl.scd2-transaction')
+        .option('catalog', 'catalog-name')
+        .option('schema', 'schema-name')
+        .option('table', 'table-name')
+        .option('load_src', 'SOURCE_FOO')
+        .option('load_id', 1)
+        .option('load_date', datetime(2025, 2, 1, 10))
+    )
+    statement: str = (
+        select_sql
+        .option('columns', ['col01', 'col02'])
+        .option('query', 'SELECT * FROM catalog-name.schema-name.source-name')
+        .load()
+    )
+    assert prepare(statement) == dedent("""
         DELETE FROM catalog-name.schema-name.table-name
-        WHERE
-            load_date >= 20250201,
-            AND load_src = 'SOURCE_FOO'
+        WHERE load_src  = 'SOURCE_FOO'
+        AND   load_date = 20250201
         ;
-        UPDATE catalog-name.schema-name.table-name
-            SET end_dt          = '9999-12-31'
-            ,   delete_f        = 0
-            ,   updt_load_src   = 'SOURCE_FOO'
-            ,   updt_load_id    = 1
-            ,   updt_load_date  = to_timestamp('20250201', 'yyyyMMdd')
-        WHERE
-            end_dt              = DATEADD(DAY, -1, to_timestamp('20250201', 'yyyyMMdd'))
-            AND updt_load_src   = 'SOURCE_FOO'
-            AND updt_load_date  >= to_timestamp('20250201', 'yyyyMMdd')
-        ;
-        MERGE INTO catalog-name.schema-name.table-name AS target
-        USING (
-            WITH change_query AS (
-                SELECT
-                    src.*,
-                    CASE WHEN tgt.pk_col IS NULL THEN 99
-                        WHEN hash(src.col01, src.col02) <> hash(tgt.col01, tgt.col02) THEN 1
-                        ELSE 0 END AS data_change
-                FROM ( SELECT * FROM catalog-name.schema-name.source-name ) AS src
-                LEFT JOIN catalog-name.schema-name.{p_table_name} AS tgt
-                    ON tgt.end_dt = '9999-12-31'
-                    AND tgt.col01 = src.col01
-        AND tgt.col02 = src.col02
-            )
-            SELECT pk_col AS merge_pk_col, * FROM change_query WHERE data_change == 1
-            UNION ALL
-            SELECT null AS merge_pk_col, * FROM change_query WHERE data_change = (1, 99)
-        ) AS source
-            ON target.pk_col = source.merge_pk_col
-        WHEN MATCHED AND source.data_change = 1
-        THEN UPDATE
-            SET target.col01= source.col01
-        ,target.col02= source.col02
-            ,   target.end_dt           = DATEADD(DAY, -1, to_timestamp('20250201', 'yyyyMMdd'))
-            ,   target.updt_load_src    = 'SOURCE_FOO'
-            ,   target.updt_load_id     = 1
-            ,   target.updt_load_date   = to_timestamp('20250201', 'yyyyMMdd')
-        WHEN NOT MATCHED AND source.data_change IN (1, 99)
-        THEN INSERT
-            (
-                col01, col02, pk_col, start_date, end_date, delete_f, load_src, load_id, load_date, updt_load_src, updt_load_id, updt_load_date
-            )
-        VALUES (
-            source.col01
-        ,source.col02
-        ,source.pk_col
-            ,   to_timestamp('20250201', 'yyyyMMdd')
-            ,   to_timestamp('9999-12-31', 'yyyy-MM-dd')
-            ,   0
-            ,   'SOURCE_FOO'
-            ,   1
-            ,   20250201
-            ,   'SOURCE_FOO'
-            ,   1
-            ,   to_timestamp('20250201', 'yyyyMMdd')
-        )
-        WHEN NOT MATCHED BY SOURCE
-            AND target.end_dt   = to_timestamp('9999-12-31', 'yyyy-MM-dd')
-            AND target.prcs_nm  = '{p_process_name}'
-        THEN UPDATE
-            SET target.delete_f         = 1
-            ,   target.end_dt           = DATEADD(DAY, -1, to_timestamp('20250201', 'yyyyMMdd'))
-            ,   target.updt_load_src    = 'SOURCE_FOO'
-            ,   target.updt_load_id     = 1
-            ,   target.updt_load_date   = to_timestamp('20250201', 'yyyyMMdd')
+        INSERT INTO catalog-name.schema-name.table-name
+        PARTITION ( load_date = 20250201 )
+            ( col01, col02, start_date, end_date, delete_f, load_src, load_id, updt_load_src, updt_load_id, updt_load_date )
+        SELECT
+            col01
+        ,col02
+            ,   to_timestamp('20250201', 'yyyyMMdd')  AS start_date
+            ,   to_timestamp('9999-12-31', 'yyyy-MM-dd')                        AS end_date
+            ,   'SOURCE_FOO'                                                AS load_src
+            ,   1                                                   AS load_id
+            ,   'SOURCE_FOO'                                                AS updt_load_src
+            ,   1                                                   AS updt_load_id
+            ,   to_timestamp('20250201', 'yyyyMMdd')  AS updt_load_date
+        FROM ( SELECT * FROM catalog-name.schema-name.source-name ) AS sub_query
         ;
         """).strip('\n')
-
 
 def test_sql_transaction(template_path):
     select_sql: SQLPlate = (
@@ -441,7 +221,7 @@ def test_sql_transaction(template_path):
         .option('query', 'SELECT * FROM catalog-name.schema-name.source-name')
         .load()
     )
-    assert prepare_statement(statement) == dedent("""
+    assert prepare(statement) == dedent("""
         DELETE FROM catalog-name.schema-name.table-name
         WHERE load_src  = 'SOURCE_FOO'
         AND   load_date = 20250201
@@ -479,8 +259,8 @@ def test_sql_full_dump(template_path):
         .option('query', 'SELECT * FROM catalog-name.schema-name.source-name')
         .load()
     )
-    print(prepare_statement(statement))
-    assert prepare_statement(statement) == dedent("""
+    print(prepare(statement))
+    assert prepare(statement) == dedent("""
         DELETE FROM catalog-name.schema-name.table-name
         WHERE load_src = 'SOURCE_FOO'
         ;

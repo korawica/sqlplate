@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any, Iterator, Optional
 
 from jinja2 import Template
 
@@ -31,13 +31,13 @@ class SQLPlate:
         self.path: Path = path
 
         # NOTE: Make default arguments.
-        self._template_name: str | None = None
-        self._template_type: str | None = None
-        self._template: Template | None = None
+        self._template_name: Optional[str] = None
+        self._template_type: Optional[str] = None
+        self._template: Optional[Template] = None
         self._option: dict[str, Any] = {}
 
     @classmethod
-    def format(cls, name: str, path: Path | None = None) -> 'SQLPlate':
+    def format(cls, name: str, path: Optional[Path] = None) -> 'SQLPlate':
         """Construction this class from a system value name.
 
         Args:

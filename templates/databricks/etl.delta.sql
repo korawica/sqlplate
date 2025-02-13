@@ -1,6 +1,8 @@
 {% extends "base.jinja" %}
+
 {% include "utils/etl_vars.jinja" with context %}
 {{ raise_undefined('pk') if pk is undefined }}
+
 {% import "databricks/macros/delta.jinja" as delta %}
 {% from "databricks/macros/utils.jinja" import hash, prepare_source %}
 

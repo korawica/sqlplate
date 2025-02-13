@@ -2,7 +2,7 @@ from pathlib import Path
 from textwrap import dedent
 
 
-def prepare_statement(statement: str) -> str:
+def prepare(statement: str) -> str:
     return statement.replace('\t', '').strip().strip('\n')
 
 
