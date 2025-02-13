@@ -1,5 +1,11 @@
 # SQL Template
 
+[![test](https://github.com/korawica/sqlplate/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/korawica/sqlplate/actions/workflows/tests.yml)
+[![pypi version](https://img.shields.io/pypi/v/sqlplate)](https://pypi.org/project/sqlplate/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/sqlplate?logo=pypi)](https://pypi.org/project/sqlplate/)
+[![size](https://img.shields.io/github/languages/code-size/korawica/sqlplate)](https://github.com/korawica/sqlplate)
+[![gh license](https://img.shields.io/github/license/korawica/sqlplate)](https://github.com/korawica/sqlplate/blob/main/LICENSE)
+
 A SQLPlate (SQL template) provide the generator object for SQL template statements
 via Python API object.
 All SQL template files are store in the [Jinja template](https://jinja.palletsprojects.com/en/stable/templates/)
