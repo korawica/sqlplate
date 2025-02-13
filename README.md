@@ -21,6 +21,11 @@ format that is the powerful template tool package.
          ╰─ ⚙️etl_vars.jinja
 ```
 
+> [!IMPORTANT]
+> The first object of this project is ETL statement generating package for
+> dynamic service change. You can change a compute SQL service any time while the
+> ETL codes do not change.
+
 ## :package: Installation
 
 ```shell
@@ -101,12 +106,12 @@ WHEN NOT MATCHED THEN INSERT
 
 | System     | Status | Remark  |
 |:-----------|:------:|---------|
-| databricks |   🟡   |         |
+| databricks |   🟢   |         |
 | postgres   |   🔴   |         |
 | mysql      |   🔴   |         |
 | mssql      |   🔴   |         |
 | synapse    |   🔴   |         |
-| bigquery   |   🔴   |         |
+| bigquery   |   🟡   |         |
 | snowflake  |   🔴   |         |
 | sqlite     |   🟡   |         |
 

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Optional
 
 
 @dataclass
@@ -16,10 +16,10 @@ class Config:
     scd1_soft_delete_columns: list[str]
     scd2_columns: list[str]
 
-    def remove_sys_cols(self, columns: list[str]):
+    def remove_sys_cols(self, columns: list[str]) -> list[str]:
         return [col for col in columns if col not in self.scd2_columns]
 
-    def export(self, template_type: str | None = None) -> dict[str, Any]:
+    def export(self, template_type: Optional[str] = None) -> dict[str, Any]:
         template_type = template_type or 'NOT_SET'
         etl_vars: dict[str, Any] = {}
         if template_type == 'etl':
