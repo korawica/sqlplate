@@ -2,6 +2,30 @@
 
 ## Latest Changes
 
+## 0.0.4
+
+### :stars: Highlight Features
+
+- :star: hl: add databricks/etl.scd2-transaction template.
+
+### :sparkles: Features
+
+- :dart: feat: add formats method on sqlplate obj for list supported template.
+- :dart: feat: add support env var config.
+- :dart: feat: add elt.transaction and etl.fulldump templates.
+
+### :bug: Bug fixes
+
+- :gear: fixed: mover config dataclass outside config func.
+
+### :black_nib: Code Changes
+
+- :test_tube: tests: add templates on tests.
+
+### :broom: Deprecate & Clean
+
+- :recycle: clean: move multiple strip funcs to trim.
+
 ## 0.0.3
 
 ### :sparkles: Features
