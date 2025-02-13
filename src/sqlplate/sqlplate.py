@@ -29,13 +29,15 @@ class SQLPlate:
             raise FileNotFoundError(f"Path {path} does not exists.")
 
         self.path: Path = path
+
+        # NOTE: Make default arguments.
         self._template_name: str | None = None
         self._template_type: str | None = None
         self._template: Template | None = None
         self._option: dict[str, Any] = {}
 
     @classmethod
-    def system(cls, name: str, path: Path | None = None) -> 'SQLPlate':
+    def format(cls, name: str, path: Path | None = None) -> 'SQLPlate':
         """Construction this class from a system value name.
 
         Args:

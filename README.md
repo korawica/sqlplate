@@ -37,7 +37,7 @@ from datetime import datetime
 from sqlplate import SQLPlate
 
 statement: str = (
-    SQLPlate.system('databricks')
+    SQLPlate.format('databricks')
     .template('etl.delta')
     .option('catalog', 'catalog-name')
     .option('schema', 'schema-name')
