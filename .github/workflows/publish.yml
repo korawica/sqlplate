@@ -57,7 +57,7 @@ jobs:
     if: github.event.action == 'released' && startsWith(github.ref, 'refs/tags')
     environment:
       name: pypi
-      url: https://pypi.org/p/fmtutil
+      url: https://pypi.org/p/sqlplate/
     needs:
       - build
     permissions:
@@ -84,7 +84,7 @@ jobs:
     if: github.event.action == 'prereleased' && startsWith(github.ref, 'refs/tags')
     environment:
       name: testpypi
-      url: https://test.pypi.org/p/fmtutil/
+      url: https://test.pypi.org/p/sqlplate/
     needs:
       - build
     permissions:
