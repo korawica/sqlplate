@@ -6,8 +6,8 @@
 [![size](https://img.shields.io/github/languages/code-size/korawica/sqlplate)](https://github.com/korawica/sqlplate)
 [![gh license](https://img.shields.io/github/license/korawica/sqlplate)](https://github.com/korawica/sqlplate/blob/main/LICENSE)
 
-A SQLPlate (SQL template) provide the generator object for SQL template statements
-via Python API object.
+A **SQLPlate** (SQL template) provide the generator object for SQL template 
+statements via Python API object.
 All SQL template files are store in the [Jinja template](https://jinja.palletsprojects.com/en/stable/templates/)
 format that is the powerful template tool package.
 
@@ -28,9 +28,9 @@ format that is the powerful template tool package.
 ```
 
 > [!IMPORTANT]
-> The first object of this project is ETL statement generating package for
-> dynamic service change. You can change a compute SQL service any time while the
-> ETL codes do not change.
+> The first object of this project is generate ETL statements for dynamic service
+> change. You can change the SQL compute service while the SQL statement does not
+> change.
 
 ## :package: Installation
 
@@ -40,8 +40,8 @@ pip install -U sqlplate
 
 ## :fork_and_knife: Usage
 
-Start passing option parameters before generate Delta ETL SQL template that use
-on the Databricks service.
+Start passing option parameters before generate the Delta ETL SQL statement that
+will use on the Azure Databricks service.
 
 ```python
 from datetime import datetime
@@ -65,7 +65,7 @@ statement: str = (
 print(statement.strip().strip('\n'))
 ```
 
-Result SQL statement that was generated from this package.
+The result SQL statement:
 
 ```text
 MERGE INTO catalog-name.schema-name.table-name AS target
@@ -110,16 +110,17 @@ WHEN NOT MATCHED THEN INSERT
 
 ## :chains: Support Systems
 
-| System     | Status | Remark  |
-|:-----------|:------:|---------|
-| databricks |   🟢   |         |
-| postgres   |   🔴   |         |
-| mysql      |   🔴   |         |
-| mssql      |   🔴   |         |
-| synapse    |   🔴   |         |
-| bigquery   |   🟡   |         |
-| snowflake  |   🔴   |         |
-| sqlite     |   🟡   |         |
+| System             | Progress Status | System Integration Test | Remark                            |
+|:-------------------|:---------------:|:-----------------------:|:----------------------------------|
+| databricks         |       🟢        |           🟡            | Azure Databricks                  |
+| postgres           |       🔴        |           🔴            |                                   |
+| mysql              |       🔴        |           🔴            |                                   |
+| mssql              |       🔴        |           🔴            |                                   |
+| synapse            |       🔴        |           🔴            | Azure Synapse Dedicate SQL Pool   |
+| synapse-serverless |       🔴        |           🔴            | Azure Synapse Serverless SQL Pool |
+| bigquery           |       🟡        |           🔴            |                                   |
+| snowflake          |       🔴        |           🔴            |                                   |
+| sqlite             |       🟡        |           🔴            |                                   |
 
 > [!NOTE]
 > - 🟢 Complete
