@@ -43,8 +43,14 @@ class SQLPlate:
         self._option: dict[str, Any] = {}
 
     @staticmethod
-    def formats(path: Optional[Path] = None) -> list[str]:
-        """Return supported formats"""
+    def list_formats(path: Optional[Path] = None) -> list[str]:
+        """Return supported formats with list of format value.
+
+        Arges:
+            path (Path | None): A template path that want to search.
+
+        :rtype: list[str]
+        """
         if path is None:
             path: Path = Path('./templates')
         return [
