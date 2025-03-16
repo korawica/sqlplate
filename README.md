@@ -116,17 +116,18 @@ WHEN NOT MATCHED THEN INSERT
 > This feature does not support yet!!!
 
 ```python
-from sqlplate import SQLity, Condition
+from sqlplate import SQLPlate
+from sqlplate.rules import Unique, NotNull, Count
 
 report: str = (
-    SQLity.format('databricks')
-    .template('quality')
+    SQLPlate.format('databricks')
+    .quality(mode="pushdown")
     .option('catalog', 'catalog-name')
     .option('schema', 'schema-name')
     .option('table', 'table-name')
-    .check('unique', Condition(cols=['pk_col'], rule="unique"))
-    .check('not-null', Condition(cols=['col01', 'col02'], rule="not-null"))
-    .check('row-count', Contition(rule="count"))
+    .check('unique', Unique(cols=['pk_col']))
+    .check('not-null', NotNull(cols=['col01', 'col02']))
+    .check('row-count', Count())
     .validate(output='html')
 )
 print(report.strip().strip('\n'))

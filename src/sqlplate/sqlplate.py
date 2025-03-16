@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Iterator, Optional, Callable
+from typing import Any, Iterator, Optional, Callable, Literal
 
 from jinja2 import Template
 
@@ -83,6 +83,9 @@ class SQLPlate:
         )
         return self
 
+    def quality(self, mode: Literal["pushdown", "memory"]) -> 'SQLPlate':
+        return self
+
     def option(self, key: str, value: Any) -> 'SQLPlate':
         """Pass an option key-value pair before generate template."""
         self._option[key] = value
@@ -144,3 +147,21 @@ class SQLPlate:
             )
             if trim(s) != ''
         )
+
+    def check(
+        self,
+        name: str,
+        rule: Any,
+    ) -> 'SQLPlate':
+        return self
+
+    def validate(
+        self,
+        output: Literal["json", "html"],
+    ):
+        return self
+
+    def filter(
+        self,
+    ):
+        return self
