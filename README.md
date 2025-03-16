@@ -40,6 +40,8 @@ pip install -U sqlplate
 
 ## :fork_and_knife: Usage
 
+### Generate SQL template
+
 Start passing option parameters before generate the Delta ETL SQL statement that
 will use on the Azure Databricks service.
 
@@ -106,6 +108,28 @@ WHEN NOT MATCHED THEN INSERT
         to_timestamp('20250201', 'yyyyMMdd')
     )
 ;
+```
+
+### Data Quality
+
+> [!IMPORTANT]
+> This feature does not support yet!!!
+
+```python
+from sqlplate import SQLity, Condition
+
+report: str = (
+    SQLity.format('databricks')
+    .template('quality')
+    .option('catalog', 'catalog-name')
+    .option('schema', 'schema-name')
+    .option('table', 'table-name')
+    .check('unique', Condition(cols=['pk_col'], rule="unique"))
+    .check('not-null', Condition(cols=['col01', 'col02'], rule="not-null"))
+    .check('row-count', Contition(rule="count"))
+    .validate(output='html')
+)
+print(report.strip().strip('\n'))
 ```
 
 ## :chains: Support Systems
