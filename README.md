@@ -69,7 +69,7 @@ print(statement.strip().strip('\n'))
 
 The result SQL statement:
 
-```text
+```sql
 MERGE INTO catalog-name.schema-name.table-name AS target
 USING (
     WITH change_query AS (
@@ -117,20 +117,26 @@ WHEN NOT MATCHED THEN INSERT
 
 ```python
 from sqlplate import SQLPlate
-from sqlplate.rules import Unique, NotNull, Count
 
-report: str = (
+statement: str = (
     SQLPlate.format('databricks')
-    .quality(mode="pushdown")
+    .template('quality.check')
     .option('catalog', 'catalog-name')
     .option('schema', 'schema-name')
     .option('table', 'table-name')
-    .check('unique', Unique(cols=['pk_col']))
-    .check('not-null', NotNull(cols=['col01', 'col02']))
-    .check('row-count', Count())
-    .validate(output='html')
+    .option('filter', "load_date >= to_timestamp('20250201', 'yyyyMMdd')")
+    .option('unique', ['pk_col'])
+    .option('notnull', ['col01', 'col02'])
+    .option('row_count', True)
+    .load()
 )
-print(report.strip().strip('\n'))
+print(statement.strip().strip('\n'))
+```
+
+The result SQL statement:
+
+```sql
+
 ```
 
 ## :chains: Support Systems

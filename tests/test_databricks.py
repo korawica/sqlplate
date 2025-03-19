@@ -277,3 +277,19 @@ def test_sql_full_dump(template_path):
         FROM ( SELECT * FROM catalog-name.schema-name.source-name ) AS sub_query
         ;
         """).strip('\n')
+
+
+def test_quality_check(template_path):
+    statement: SQLPlate = (
+        SQLPlate.format('databricks', path=template_path)
+        .template('quality.check')
+        .option('catalog', 'catalog-name')
+        .option('schema', 'schema-name')
+        .option('table', 'table-name')
+        .option('filter', "load_date >= to_timestamp('20250201', 'yyyyMMdd')")
+        .option('unique', ['pk_col'])
+        .option('notnull', ['col01', 'col02'])
+        .option("row_count", True)
+        .load()
+    )
+    print(statement)

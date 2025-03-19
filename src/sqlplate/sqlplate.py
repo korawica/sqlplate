@@ -147,21 +147,3 @@ class SQLPlate:
             )
             if trim(s) != ''
         )
-
-    def check(
-        self,
-        name: str,
-        rule: Any,
-    ) -> 'SQLPlate':
-        return self
-
-    def validate(
-        self,
-        output: Literal["json", "html"],
-    ):
-        return self
-
-    def filter(
-        self,
-    ):
-        return self
