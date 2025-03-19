@@ -40,6 +40,8 @@ pip install -U sqlplate
 
 ## :fork_and_knife: Usage
 
+### Generate SQL template
+
 Start passing option parameters before generate the Delta ETL SQL statement that
 will use on the Azure Databricks service.
 
@@ -67,7 +69,7 @@ print(statement.strip().strip('\n'))
 
 The result SQL statement:
 
-```text
+```sql
 MERGE INTO catalog-name.schema-name.table-name AS target
 USING (
     WITH change_query AS (
@@ -106,6 +108,55 @@ WHEN NOT MATCHED THEN INSERT
         to_timestamp('20250201', 'yyyyMMdd')
     )
 ;
+```
+
+### Data Quality
+
+This package handle generate SQL statement only. For a data quality part, you can
+use the quality template.
+
+> [!IMPORTANT]
+> This feature does not support yet!!!
+
+```python
+from sqlplate import SQLPlate
+
+statement: str = (
+    SQLPlate.format('databricks')
+    .template('quality.check')
+    .option('catalog', 'catalog-name')
+    .option('schema', 'schema-name')
+    .option('table', 'table-name')
+    .option('filter', "load_date >= to_timestamp('20250201', 'yyyyMMdd')")
+    .option('unique', ['pk_col'])
+    .option('notnull', ['col01', 'col02'])
+    .option("contain", [("col01", ["A", "B", "C"])])
+    .option("validate", [("col03", "> 10000")])
+    .load()
+)
+print(statement.strip().strip('\n'))
+```
+
+The result SQL statement:
+
+```sql
+WITH source AS (
+    SELECT
+        *
+    FROM
+        catalog-name.schema-name.table-name
+    WHERE load_date >= to_timestamp('20250201', 'yyyyMMdd')
+)
+, records AS (
+    SELECT COUNT(1)     AS table_records
+    FROM source
+)
+SELECT
+    (SELECT table_records FROM records) AS table_records
+    , ((SELECT COUNT( DISTINCT pk_col ) FROM source) = (SELECT table_records FROM records)) AS unique_pk_col
+    , (SELECT COUNT(1) FROM source WHERE pk_col IS NULL) = 0 AS notnull_pk_col
+    , (SELECT COUNT(1) FROM source WHERE col01 NOT IN ['A', 'B', 'C']) = 0 AS contain_col01
+    , ((SELECT COUNT(1) FROM source WHERE col03 > 10000)  = (SELECT table_records FROM records)) AS validate_col03
 ```
 
 ## :chains: Support Systems

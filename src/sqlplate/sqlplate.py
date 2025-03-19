@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Iterator, Optional, Callable
+from typing import Any, Iterator, Optional, Callable, Literal
 
 from jinja2 import Template
 
@@ -81,6 +81,9 @@ class SQLPlate:
         self._template: Template = (
             get_env(self.path).get_template(f'{self.name}/{name}.sql')
         )
+        return self
+
+    def quality(self, mode: Literal["pushdown", "memory"]) -> 'SQLPlate':
         return self
 
     def option(self, key: str, value: Any) -> 'SQLPlate':
