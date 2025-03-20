@@ -2,6 +2,25 @@
 
 ## Latest Changes
 
+## 0.0.5
+
+### :sparkles: Features
+
+- :dart: feat: handle tag or version on target system that want to generate (#5)
+- :dart: feat: add data quality and write report file after validation (#4)
+
+### :broom: Deprecate & Clean
+
+- :recycle: clean: rename class method for list formats on template folder.
+
+### :package: Build & Workflow
+
+- :toolbox: build: change env url that not valid.
+
+### :postbox: Dependencies
+
+- :package: deps: bump jinja2 from 3.1.5 to 3.1.6 (#1)
+
 ## 0.0.4
 
 ### :stars: Highlight Features
