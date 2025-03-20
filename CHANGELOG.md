@@ -2,6 +2,17 @@
 
 ## Latest Changes
 
+## 0.0.6
+
+### :sparkles: Features
+
+- :dart: feat: update select statement on sqlite.
+- :dart: feat: add matrix quality.
+
+### :black_nib: Code Changes
+
+- :test_tube: tests: update utils test.
+
 ## 0.0.5
 
 ### :sparkles: Features
