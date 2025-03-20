@@ -1,4 +1,4 @@
-{% extends "databricks/etl.scd2.sql" %}
+{% extends "databricks/" ~ _version ~ "/etl.scd2.sql" %}
 {% import "databricks/macros/scd2.jinja" as scd2 +%}
 {% block substatement %}
 WHEN NOT MATCHED BY SOURCE

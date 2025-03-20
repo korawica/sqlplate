@@ -150,7 +150,11 @@ class SQLPlate:
         render: str = trim(
             self._template.render(
                 **(
-                    {"_system": self.name, "_template": self._template_name}
+                    {
+                        "_system": self.name,
+                        "_template": self._template_name,
+                        "_version": self._version,
+                    }
                     | config().export(self._template_type)
                     | self._option
                     | kwargs
