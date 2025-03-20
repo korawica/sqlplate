@@ -72,6 +72,24 @@ class SQLPlate:
             if fmt.is_dir() and fmt.name != 'utils'
         ]
 
+    @staticmethod
+    def list_versions(fmt: str, path: Optional[Path] = None) -> list[str]:
+        """Return supported version of specific format with list of version
+        string value.
+
+        Arges:
+            path (Path | None): A template path that want to search.
+
+        :rtype: list[str]
+        """
+        if path is None:
+            path: Path = Path('./templates')
+        return [
+            f.name
+            for f in (path / fmt).glob(pattern='*')
+            if f.is_dir()
+        ]
+
     @classmethod
     def format(cls, name: str, path: Optional[Path] = None) -> 'SQLPlate':
         """Construction this class from a system value name.
