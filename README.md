@@ -150,9 +150,11 @@ WITH source AS (
 SELECT
     (SELECT table_records FROM records) AS table_records
     , ((SELECT COUNT( DISTINCT pk_col ) FROM source) = (SELECT table_records FROM records)) AS unique_pk_col
-    , (SELECT COUNT(1) FROM source WHERE col01 IS NULL) = 0 AS notnull_col01, (SELECT COUNT(1) FROM source WHERE col02 IS NULL) = 0 AS notnull_col02
-    , ((SELECT COUNT(1) FROM source WHERE col01 IN ['A', 'B', 'C'])  = (SELECT table_records FROM records)) AS contain_col01
-    , ((SELECT COUNT(1) FROM source WHERE col03 > 10000)  = (SELECT table_records FROM records)) AS gt_10000_col03
+    , (SELECT COUNT(1) FROM source WHERE col01 IS NULL) = 0 AS notnull_col01
+    , (SELECT COUNT(1) FROM source WHERE col02 IS NULL) = 0 AS notnull_col02
+    , (SELECT COUNT(1) FROM source WHERE col01 IN ['A', 'B', 'C']) = table_records AS contain_col01
+    , (SELECT COUNT(1) FROM source WHERE col03 > 10000) = table_records AS gt_10000_col03
+FROM records
 ```
 
 ## :chains: Support Systems

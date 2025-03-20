@@ -299,13 +299,12 @@ def test_quality_check(template_path):
 def test_quality_metrix(template_path):
     statement: SQLPlate = (
         SQLPlate.format('databricks', path=template_path)
-        .template('quality.metrix')
+        .template('quality.matrix')
         .option('catalog', 'catalog-name')
         .option('schema', 'schema-name')
         .option('table', 'table-name')
         .option('filter', "load_date >= to_timestamp('20250201', 'yyyyMMdd')")
-        .check("contain", ["col01"], "IN ['A', 'B', 'C']")
-        .check("gt_10000", ["col03"], "> 10000")
+        .option("columns", ["col01", "col02"])
         .load()
     )
     print(statement)
