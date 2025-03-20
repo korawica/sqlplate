@@ -12,7 +12,11 @@ from dataclasses import dataclass
 from jinja2 import Template
 
 from .conf import config
-from .exceptions import TemplateNotSet
+from .exceptions import (
+    TemplateNotSet,
+    TemplateVersionNotFound,
+    TemplateNotSupport,
+)
 from .utils import get_env, remove_sql_comment
 
 
@@ -48,6 +52,7 @@ class SQLPlate:
         self._template_name: Optional[str] = None
         self._template_type: Optional[str] = None
         self._template: Optional[Template] = None
+        self._version: str = "latest"
         self._option: dict[str, Any] = {}
 
     @staticmethod
@@ -87,8 +92,28 @@ class SQLPlate:
             self._template_type, _ = name.split('.', maxsplit=1)
 
         self._template: Template = (
-            get_env(self.path).get_template(f'{self.name}/{name}.sql')
+            get_env(self.path).get_template(
+                f'{self.name}/{self._version}/{name}.sql'
+            )
         )
+        return self
+
+    def version(self, tag: str) -> 'SQLPlate':
+        """Pass a version for getting specific or time-travel template.
+
+        Args:
+            tag (str): A tag version.
+        """
+        if all(
+            tag != f.name
+            for f in (self.path / self.name).iterdir()
+            if f.is_dir()
+        ):
+            raise TemplateVersionNotFound(
+                f"Version: {tag!r} does not found on this {self.name!r} format."
+            )
+
+        self._version: str = tag
         return self
 
     def option(self, key: str, value: Any) -> 'SQLPlate':
@@ -169,11 +194,8 @@ class SQLPlate:
         if "validates" not in self._option:
             self._option["validates"] = []
 
-        if (
-            self._template_name
-            and not self._template_name.startswith("quality.")
-        ):
-            raise NotImplementedError(
+        if self._template_name and self._template_type != "quality":
+            raise TemplateNotSupport(
                 "The check method does not support the none-quality template."
             )
 

@@ -7,3 +7,9 @@ from __future__ import annotations
 
 
 class TemplateNotSet(Exception): ...
+
+
+class TemplateVersionNotFound(Exception): ...
+
+
+class TemplateNotSupport(Exception): ...

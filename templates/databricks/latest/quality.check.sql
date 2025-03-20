@@ -1,4 +1,7 @@
 {% extends "base.jinja" %}
+{{ raise_undefined('catalog') if catalog is undefined }}
+{{ raise_undefined('schema') if schema is undefined }}
+{{ raise_undefined('table') if table is undefined }}
 
 {% block statement %}
 WITH source AS (

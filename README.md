@@ -166,7 +166,7 @@ SELECT
 | databricks         |       🟢        |           🟡            | Azure Databricks                  |
 | postgres           |       🔴        |           🔴            |                                   |
 | mysql              |       🔴        |           🔴            |                                   |
-| mssql              |       🔴        |           🔴            |                                   |
+| mssql              |       🔴        |           🔴            | Microsoft SQL Server              |
 | synapse            |       🔴        |           🔴            | Azure Synapse Dedicate SQL Pool   |
 | synapse-serverless |       🔴        |           🔴            | Azure Synapse Serverless SQL Pool |
 | bigquery           |       🟡        |           🔴            |                                   |
