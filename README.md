@@ -17,14 +17,19 @@ format that is the powerful template tool package.
 📂templates/
    ├─ 📂databricks/
    │     ├─ 📂macros/
-   │     │     ╰─ ⚙️delta.jinja
-   │     ├─ 📜etl.delta.sql
-   │     ├─ 📜etl.scd2.sql
-   │     ╰─ 📜select.sql
-   ├─ 📂synapse-dedicate/
-   │     ╰─ 📜etl.delta.sql
+   │     │     ╰─ ⚙️ delta.jinja
+   │     ╰─ 📂latest/
+   │           ├─ 📜 etl.delta.sql
+   │           ├─ 📜 etl.scd2.sql
+   │           ╰─ 📜 select.sql
+   ├─ 📂sqlite/
+   │     ╰─ 📂latest/
+   │           ╰─📜 etl.delta.sql
+   ├─ 📂synapse/
+   │     ╰─ 📂latest/
+   │           ╰─📜 etl.delta.sql
    ╰─ 📂utils/
-         ╰─ ⚙️etl_vars.jinja
+         ╰─ ⚙️ etl_vars.jinja
 ```
 
 > [!IMPORTANT]
@@ -159,17 +164,21 @@ FROM records
 
 ## :chains: Support Systems
 
-| System             | Progress Status | System Integration Test | Remark                            |
-|:-------------------|:---------------:|:-----------------------:|:----------------------------------|
-| databricks         |       🟢        |           🟡            | Azure Databricks                  |
-| postgres           |       🔴        |           🔴            |                                   |
-| mysql              |       🔴        |           🔴            |                                   |
-| mssql              |       🔴        |           🔴            | Microsoft SQL Server              |
-| synapse            |       🔴        |           🔴            | Azure Synapse Dedicate SQL Pool   |
-| synapse-serverless |       🔴        |           🔴            | Azure Synapse Serverless SQL Pool |
-| bigquery           |       🟡        |           🔴            |                                   |
-| snowflake          |       🔴        |           🔴            |                                   |
-| sqlite             |       🟡        |           🔴            |                                   |
+| System             | Progress Status  | System Integration Test | Remark                            |
+|:-------------------|:----------------:|:-----------------------:|:----------------------------------|
+| databricks         |        🟢        |           🟡            | Azure Databricks                  |
+| postgres           |        🔴        |           🔴            |                                   |
+| mysql              |        🔴        |           🔴            |                                   |
+| mssql              |        🔴        |           🔴            | Microsoft SQL Server              |
+| synapse            |        🔴        |           🔴            | Azure Synapse Dedicate SQL Pool   |
+| synapse-serverless |        🔴        |           🔴            | Azure Synapse Serverless SQL Pool |
+| bigquery           |        🟡        |           🔴            | Google BigQuery                   |
+| snowflake          |        🔴        |           🔴            |                                   |
+| sqlite             |        🟡        |           🟡            |                                   |
+| duckdb             |        🟡        |           🟡            |                                   |
+| redshift           |        🔴        |           🔴            | Amazon RedShift                   |
+| athena             |        🔴        |           🔴            | Amazon Athena                     |
+| trino              |        🔴        |           🔴            | Trino                             |
 
 > [!NOTE]
 > - 🟢 Complete
