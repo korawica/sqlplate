@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any, Iterator, Optional, Callable, Literal
+from dataclasses import dataclass
 
 from jinja2 import Template
 
@@ -16,6 +17,13 @@ from .utils import get_env, remove_sql_comment
 
 
 trim: Callable[[str], str] = lambda x: x.strip().strip('\n')
+
+
+@dataclass
+class Check:
+    rule: Literal["contain", "validate"]
+    cols: list[str]
+    condition: str
 
 
 class SQLPlate:
@@ -83,11 +91,13 @@ class SQLPlate:
         )
         return self
 
-    def quality(self, mode: Literal["pushdown", "memory"]) -> 'SQLPlate':
-        return self
-
     def option(self, key: str, value: Any) -> 'SQLPlate':
-        """Pass an option key-value pair before generate template."""
+        """Pass an option key-value pair before generate template.
+
+        Args:
+            key (str): A key name of this option.
+            value (Any): A value of this key option.
+        """
         self._option[key] = value
         return self
 
@@ -147,3 +157,27 @@ class SQLPlate:
             )
             if trim(s) != ''
         )
+
+    def check(self, name: str, cols: list[str], condition: str) -> "SQLPlate":
+        """Passing the check object to the validates key option.
+
+        Args:
+            name (str): A validation name.
+            cols (list[str]): A list of column name.
+            condition (str): A condition string of this validation.
+        """
+        if "validates" not in self._option:
+            self._option["validates"] = []
+
+        if (
+            self._template_name
+            and not self._template_name.startswith("quality.")
+        ):
+            raise NotImplementedError(
+                "The check method does not support the none-quality template."
+            )
+
+        self._option["validates"].append(
+            Check(rule=name, cols=cols, condition=condition)
+        )
+        return self
