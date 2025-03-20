@@ -3,8 +3,8 @@ from src.sqlplate.utils import get_env
 
 def test_get_env(test_path):
     env = get_env(test_path.parent / 'templates')
-    template = env.get_template('sqlite/latest/select.sql')
-    assert template.render() == "SELECT 'HELLO WORLD' AS GREETING"
+    template = env.get_template('base.jinja')
+    assert template.render() == ""
 
     template = env.from_string("SELECT 'HELLO WORLD' AS GREETING")
     assert template.render() == "SELECT 'HELLO WORLD' AS GREETING"
