@@ -112,11 +112,8 @@ WHEN NOT MATCHED THEN INSERT
 
 ### Data Quality
 
-This package handle generate SQL statement only. For a data quality part, you can
-use the quality template.
-
-> [!IMPORTANT]
-> This feature does not support yet!!!
+This package handle generate SQL statement only.
+For the data quality part, this package can use quality templates instead.
 
 ```python
 from sqlplate import SQLPlate
@@ -148,15 +145,14 @@ WITH source AS (
     WHERE load_date >= to_timestamp('20250201', 'yyyyMMdd')
 )
 , records AS (
-    SELECT COUNT(1)     AS table_records
-    FROM source
+    SELECT COUNT(1) AS table_records FROM source
 )
 SELECT
     (SELECT table_records FROM records) AS table_records
     , ((SELECT COUNT( DISTINCT pk_col ) FROM source) = (SELECT table_records FROM records)) AS unique_pk_col
-    , (SELECT COUNT(1) FROM source WHERE pk_col IS NULL) = 0 AS notnull_pk_col
-    , (SELECT COUNT(1) FROM source WHERE col01 NOT IN ['A', 'B', 'C']) = 0 AS contain_col01
-    , ((SELECT COUNT(1) FROM source WHERE col03 > 10000)  = (SELECT table_records FROM records)) AS validate_col03
+    , (SELECT COUNT(1) FROM source WHERE col01 IS NULL) = 0 AS notnull_col01, (SELECT COUNT(1) FROM source WHERE col02 IS NULL) = 0 AS notnull_col02
+    , ((SELECT COUNT(1) FROM source WHERE col01 IN ['A', 'B', 'C'])  = (SELECT table_records FROM records)) AS contain_col01
+    , ((SELECT COUNT(1) FROM source WHERE col03 > 10000)  = (SELECT table_records FROM records)) AS gt_10000_col03
 ```
 
 ## :chains: Support Systems

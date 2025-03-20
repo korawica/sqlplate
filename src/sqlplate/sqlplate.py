@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Iterator, Optional, Callable, Literal
+from typing import Any, Iterator, Optional, Callable, Literal, Union
 from dataclasses import dataclass
 
 from jinja2 import Template
@@ -183,13 +183,15 @@ class SQLPlate:
             if trim(s) != ''
         )
 
-    def check(self, name: str, cols: list[str], condition: str) -> "SQLPlate":
+    def check(
+        self, name: str, cols: Union[str, list[str]], condition: str
+    ) -> "SQLPlate":
         """Passing the check object to the validates key option.
 
         Args:
-            name (str): A validation name.
-            cols (list[str]): A list of column name.
-            condition (str): A condition string of this validation.
+            - name (str): A validation name.
+            - cols (str | list[str]): A list of column name.
+            - condition (str): A condition string of this validation.
         """
         if "validates" not in self._option:
             self._option["validates"] = []
@@ -197,6 +199,16 @@ class SQLPlate:
         if self._template_name and self._template_type != "quality":
             raise TemplateNotSupport(
                 "The check method does not support the none-quality template."
+            )
+
+        if isinstance(cols, str):
+            cols: list[str] = [cols]
+        elif (
+            not isinstance(cols, list)
+            or any(not isinstance(c, str) for c in cols)
+        ):
+            raise TypeError(
+                f"The cols parameter does not support for type: {type(cols)}."
             )
 
         self._option["validates"].append(
