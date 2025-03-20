@@ -289,14 +289,8 @@ def test_quality_check(template_path):
         .option('filter', "load_date >= to_timestamp('20250201', 'yyyyMMdd')")
         .option('unique', ['pk_col'])
         .option('notnull', ['col01', 'col02'])
-        .option(
-            "contain",
-            [("col01", ["A", "B", "C"])],
-        )
-        .option(
-            "validate",
-            [("col03", "> 10000")],
-        )
+        .check("contain", ["col01"], "IN ['A', 'B', 'C']")
+        .check("gt_10000", ["col03"], "> 10000")
         .load()
     )
     print(statement)
@@ -310,7 +304,8 @@ def test_quality_metrix(template_path):
         .option('schema', 'schema-name')
         .option('table', 'table-name')
         .option('filter', "load_date >= to_timestamp('20250201', 'yyyyMMdd')")
-        .option("metrix", ["col1", "col2", "col3"])
+        .check("contain", ["col01"], "IN ['A', 'B', 'C']")
+        .check("gt_10000", ["col03"], "> 10000")
         .load()
     )
     print(statement)

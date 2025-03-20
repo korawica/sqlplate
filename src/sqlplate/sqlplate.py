@@ -6,16 +6,28 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Iterator, Optional, Callable, Literal
+from typing import Any, Iterator, Optional, Callable, Literal, Union
+from dataclasses import dataclass
 
 from jinja2 import Template
 
 from .conf import config
-from .exceptions import TemplateNotSet
+from .exceptions import (
+    TemplateNotSet,
+    TemplateVersionNotFound,
+    TemplateNotSupport,
+)
 from .utils import get_env, remove_sql_comment
 
 
 trim: Callable[[str], str] = lambda x: x.strip().strip('\n')
+
+
+@dataclass
+class Check:
+    rule: Literal["contain", "validate"]
+    cols: list[str]
+    condition: str
 
 
 class SQLPlate:
@@ -40,6 +52,7 @@ class SQLPlate:
         self._template_name: Optional[str] = None
         self._template_type: Optional[str] = None
         self._template: Optional[Template] = None
+        self._version: str = "latest"
         self._option: dict[str, Any] = {}
 
     @staticmethod
@@ -57,6 +70,24 @@ class SQLPlate:
             fmt.name
             for fmt in path.glob(pattern='*')
             if fmt.is_dir() and fmt.name != 'utils'
+        ]
+
+    @staticmethod
+    def list_versions(fmt: str, path: Optional[Path] = None) -> list[str]:
+        """Return supported version of specific format with list of version
+        string value.
+
+        Arges:
+            path (Path | None): A template path that want to search.
+
+        :rtype: list[str]
+        """
+        if path is None:
+            path: Path = Path('./templates')
+        return [
+            f.name
+            for f in (path / fmt).glob(pattern='*')
+            if f.is_dir()
         ]
 
     @classmethod
@@ -79,15 +110,37 @@ class SQLPlate:
             self._template_type, _ = name.split('.', maxsplit=1)
 
         self._template: Template = (
-            get_env(self.path).get_template(f'{self.name}/{name}.sql')
+            get_env(self.path).get_template(
+                f'{self.name}/{self._version}/{name}.sql'
+            )
         )
         return self
 
-    def quality(self, mode: Literal["pushdown", "memory"]) -> 'SQLPlate':
+    def version(self, tag: str) -> 'SQLPlate':
+        """Pass a version for getting specific or time-travel template.
+
+        Args:
+            tag (str): A tag version.
+        """
+        if all(
+            tag != f.name
+            for f in (self.path / self.name).iterdir()
+            if f.is_dir()
+        ):
+            raise TemplateVersionNotFound(
+                f"Version: {tag!r} does not found on this {self.name!r} format."
+            )
+
+        self._version: str = tag
         return self
 
     def option(self, key: str, value: Any) -> 'SQLPlate':
-        """Pass an option key-value pair before generate template."""
+        """Pass an option key-value pair before generate template.
+
+        Args:
+            key (str): A key name of this option.
+            value (Any): A value of this key option.
+        """
         self._option[key] = value
         return self
 
@@ -115,7 +168,11 @@ class SQLPlate:
         render: str = trim(
             self._template.render(
                 **(
-                    {"_system": self.name, "_template": self._template_name}
+                    {
+                        "_system": self.name,
+                        "_template": self._template_name,
+                        "_version": self._version,
+                    }
                     | config().export(self._template_type)
                     | self._option
                     | kwargs
@@ -147,3 +204,36 @@ class SQLPlate:
             )
             if trim(s) != ''
         )
+
+    def check(
+        self, name: str, cols: Union[str, list[str]], condition: str
+    ) -> "SQLPlate":
+        """Passing the check object to the validates key option.
+
+        Args:
+            - name (str): A validation name.
+            - cols (str | list[str]): A list of column name.
+            - condition (str): A condition string of this validation.
+        """
+        if "validates" not in self._option:
+            self._option["validates"] = []
+
+        if self._template_name and self._template_type != "quality":
+            raise TemplateNotSupport(
+                "The check method does not support the none-quality template."
+            )
+
+        if isinstance(cols, str):
+            cols: list[str] = [cols]
+        elif (
+            not isinstance(cols, list)
+            or any(not isinstance(c, str) for c in cols)
+        ):
+            raise TypeError(
+                f"The cols parameter does not support for type: {type(cols)}."
+            )
+
+        self._option["validates"].append(
+            Check(rule=name, cols=cols, condition=condition)
+        )
+        return self

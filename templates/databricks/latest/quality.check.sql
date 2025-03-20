@@ -1,4 +1,7 @@
 {% extends "base.jinja" %}
+{{ raise_undefined('catalog') if catalog is undefined }}
+{{ raise_undefined('schema') if schema is undefined }}
+{{ raise_undefined('table') if table is undefined }}
 
 {% block statement %}
 WITH source AS (
@@ -9,8 +12,7 @@ WITH source AS (
     {%+ if filter %}WHERE {{ filter }}{% endif +%}
 )
 , records AS (
-    SELECT COUNT(1)     AS table_records
-    FROM source
+    SELECT COUNT(1) AS table_records FROM source
 )
 SELECT
     (SELECT table_records FROM records) AS table_records
@@ -20,18 +22,15 @@ SELECT
         {%- endfor -%}
     {%- endif +%}
     {%+ if notnull -%}
-        {%- for col in unique -%}
+        {%- for col in notnull -%}
     , (SELECT COUNT(1) FROM source WHERE {{ col }} IS NULL) = 0 AS notnull_{{ col }}
         {%- endfor -%}
     {%- endif +%}
-    {%+ if contain -%}
-        {%- for col in contain -%}
-    , (SELECT COUNT(1) FROM source WHERE {{ col[0] }} NOT IN {{ col[1] }}) = 0 AS contain_{{ col[0] }}
-        {%- endfor -%}
-    {%- endif +%}
-    {%+ if contain -%}
-        {%- for col in validate -%}
-    , ((SELECT COUNT(1) FROM source WHERE {{ col[0] }} {{ col[1] }})  = (SELECT table_records FROM records)) AS validate_{{ col[0] }}
-        {%- endfor -%}
+    {%- if validates -%}
+        {%- for validate in validates -%}
+            {%- for col in validate.cols +%}
+    , ((SELECT COUNT(1) FROM source WHERE {{ col }} {{ validate.condition }})  = (SELECT table_records FROM records)) AS {{ validate.rule }}_{{ col }}
+            {%- endfor -%}
+        {% endfor -%}
     {%- endif +%}
 {% endblock statement %}
