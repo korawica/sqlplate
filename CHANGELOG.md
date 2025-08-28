@@ -2,6 +2,17 @@
 
 ## Latest Changes
 
+## 0.0.7
+
+### :postbox: Dependencies
+
+- :pushpin: deps: mark optional deps.
+- :pushpin: deps: update python version support base 3.10 or upper.
+
+### :book: Documentations
+
+- :page_facing_up: docs: update readme file.
+
 ## 0.0.6
 
 ### :sparkles: Features
