@@ -5,22 +5,23 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Any, Iterator, Optional, Callable, Literal, Union
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Iterator, Literal, Union
 
 from jinja2 import Template
 
 from .conf import config
 from .exceptions import (
     TemplateNotSet,
-    TemplateVersionNotFound,
     TemplateNotSupport,
+    TemplateVersionNotFound,
 )
 from .utils import get_env, remove_sql_comment
 
 
-trim: Callable[[str], str] = lambda x: x.strip().strip('\n')
+def trim(value: str) -> str:
+    return value.strip().strip("\n")
 
 
 @dataclass
@@ -49,14 +50,14 @@ class SQLPlate:
         self.path: Path = path
 
         # NOTE: Make default arguments.
-        self._template_name: Optional[str] = None
-        self._template_type: Optional[str] = None
-        self._template: Optional[Template] = None
+        self._template_name: str | None = None
+        self._template_type: str | None = None
+        self._template: Template | None = None
         self._version: str = "latest"
         self._option: dict[str, Any] = {}
 
     @staticmethod
-    def list_formats(path: Optional[Path] = None) -> list[str]:
+    def list_formats(path: Path | None = None) -> list[str]:
         """Return supported formats with list of format value.
 
         Arges:
@@ -65,15 +66,15 @@ class SQLPlate:
         :rtype: list[str]
         """
         if path is None:
-            path: Path = Path('./templates')
+            path: Path = Path("./templates")
         return [
             fmt.name
-            for fmt in path.glob(pattern='*')
-            if fmt.is_dir() and fmt.name != 'utils'
+            for fmt in path.glob(pattern="*")
+            if fmt.is_dir() and fmt.name != "utils"
         ]
 
     @staticmethod
-    def list_versions(fmt: str, path: Optional[Path] = None) -> list[str]:
+    def list_versions(fmt: str, path: Path | None = None) -> list[str]:
         """Return supported version of specific format with list of version
         string value.
 
@@ -83,15 +84,11 @@ class SQLPlate:
         :rtype: list[str]
         """
         if path is None:
-            path: Path = Path('./templates')
-        return [
-            f.name
-            for f in (path / fmt).glob(pattern='*')
-            if f.is_dir()
-        ]
+            path: Path = Path("./templates")
+        return [f.name for f in (path / fmt).glob(pattern="*") if f.is_dir()]
 
     @classmethod
-    def format(cls, name: str, path: Optional[Path] = None) -> 'SQLPlate':
+    def format(cls, name: str, path: Path | None = None) -> "SQLPlate":
         """Construction this class from a system value name.
 
         Args:
@@ -99,24 +96,22 @@ class SQLPlate:
             path (Path | None): A template path.
         """
         if path is None:
-            path: Path = Path('./templates')
+            path: Path = Path("./templates")
         return cls(name=name, path=path)
 
-    def template(self, name: str) -> 'SQLPlate':
+    def template(self, name: str) -> "SQLPlate":
         """Create template object attribute on this instance."""
         self._template_name: str = name
 
-        if '.' in name and name.count('.') == 1:
-            self._template_type, _ = name.split('.', maxsplit=1)
+        if "." in name and name.count(".") == 1:
+            self._template_type, _ = name.split(".", maxsplit=1)
 
-        self._template: Template = (
-            get_env(self.path).get_template(
-                f'{self.name}/{self._version}/{name}.sql'
-            )
+        self._template: Template = get_env(self.path).get_template(
+            f"{self.name}/{self._version}/{name}.sql"
         )
         return self
 
-    def version(self, tag: str) -> 'SQLPlate':
+    def version(self, tag: str) -> "SQLPlate":
         """Pass a version for getting specific or time-travel template.
 
         Args:
@@ -134,7 +129,7 @@ class SQLPlate:
         self._version: str = tag
         return self
 
-    def option(self, key: str, value: Any) -> 'SQLPlate':
+    def option(self, key: str, value: Any) -> "SQLPlate":
         """Pass an option key-value pair before generate template.
 
         Args:
@@ -144,7 +139,7 @@ class SQLPlate:
         self._option[key] = value
         return self
 
-    def options(self, values: dict[str, Any]) -> 'SQLPlate':
+    def options(self, values: dict[str, Any]) -> "SQLPlate":
         """Pass an option mapping with multiple key-value pairs before generate
         template.
 
@@ -184,10 +179,7 @@ class SQLPlate:
         return render
 
     def stream(
-        self,
-        remove_comment: bool = False,
-        split_char: str = ';',
-        **kwargs
+        self, remove_comment: bool = False, split_char: str = ";", **kwargs
     ) -> Iterator[str]:
         """Return the iterator of sub-statement that split with ';' charactor.
 
@@ -199,14 +191,18 @@ class SQLPlate:
         yield from (
             trim(s)
             for s in (
-                self.load(remove_comment=remove_comment, **kwargs)
-                .split(split_char)
+                self.load(remove_comment=remove_comment, **kwargs).split(
+                    split_char
+                )
             )
-            if trim(s) != ''
+            if trim(s) != ""
         )
 
     def check(
-        self, name: str, cols: Union[str, list[str]], condition: str
+        self,
+        name: Literal["contain", "validate"],
+        cols: Union[str, list[str]],
+        condition: str,
     ) -> "SQLPlate":
         """Passing the check object to the validates key option.
 
@@ -225,9 +221,8 @@ class SQLPlate:
 
         if isinstance(cols, str):
             cols: list[str] = [cols]
-        elif (
-            not isinstance(cols, list)
-            or any(not isinstance(c, str) for c in cols)
+        elif not isinstance(cols, list) or any(
+            not isinstance(c, str) for c in cols
         ):
             raise TypeError(
                 f"The cols parameter does not support for type: {type(cols)}."

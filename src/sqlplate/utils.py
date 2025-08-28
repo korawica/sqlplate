@@ -25,8 +25,8 @@ def map_fmt(value: list[str], fmt: str) -> list[str]:
 
 def raise_undefined(value: str) -> None:
     """Raise with UndefinedError for a needed variable on the Jinja template."""
-    if len(value.split('|')) > 1:
-        value: str = "' or '".join(value.split('|'))
+    if len(value.split("|")) > 1:
+        value: str = "' or '".join(value.split("|"))
     raise UndefinedError(f"The '{value}' is undefined")
 
 
@@ -50,15 +50,15 @@ def get_env(
     """
     env = Environment(
         loader=PackageLoader(
-            package_name='templates',
+            package_name="templates",
             package_path=str(path),
         ),
         trim_blocks=trim_blocks,
-        lstrip_blocks=lstrip_blocks
+        lstrip_blocks=lstrip_blocks,
     )
-    env.filters['map_fmt'] = map_fmt
-    env.filters['dt_fmt'] = dt_fmt
-    env.globals['raise_undefined'] = raise_undefined
+    env.filters["map_fmt"] = map_fmt
+    env.filters["dt_fmt"] = dt_fmt
+    env.globals["raise_undefined"] = raise_undefined
     return env
 
 
@@ -80,11 +80,11 @@ def remove_sql_comment(statement: str):
         'SELECT\\nFROM table'
 
     """
-    statement: str = re.sub(r'^\s*--.*\n?', '', statement, flags=re.MULTILINE)
-    statement: str = re.sub(r'\s*--.*\n?', '', statement, flags=re.MULTILINE)
+    statement: str = re.sub(r"^\s*--.*\n?", "", statement, flags=re.MULTILINE)
+    statement: str = re.sub(r"\s*--.*\n?", "", statement, flags=re.MULTILINE)
 
     comment_re = re.compile(
-        r'(^)?[^\S\n]*/(?:\*(.*?)\*/[^\S\n]*|/[^\n]*)($)?',
+        r"(^)?[^\S\n]*/(?:\*(.*?)\*/[^\S\n]*|/[^\n]*)($)?",
         re.DOTALL | re.MULTILINE,
     )
 
@@ -92,17 +92,16 @@ def remove_sql_comment(statement: str):
         start, mid, end = match.group(1, 2, 3)
         if mid is None:
             # NOTE: single line comment
-            return ''
+            return ""
         elif start is not None or end is not None:
             # NOTE: multi line comment at start or end of a line
-            return ''
-        elif '\n' in mid:
+            return ""
+        elif "\n" in mid:
             # NOTE: multi line comment with line break
-            return '\n'
+            return "\n"
         else:
             # NOTE: multi line comment without line break
-            return ' '
+            return " "
 
     statement = comment_re.sub(comment_replacer, statement)
     return statement
-
