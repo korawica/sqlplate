@@ -11,24 +11,28 @@ SQL template statements via Python API object.
 All SQL template files are store in the [Jinja template](https://jinja.palletsprojects.com/en/stable/templates/)
 format that is the powerful template tool package.
 
+> [!NOTE]
+> This project keep all SQL use-case that use on Data Engineer works like SCD2
+> with `MERGE` operator.
+
 **The layer of SQL template files will be:**
 
 ```text
-📂templates/
-   ├─ 📂databricks/
+templates/
+   ├─ databricks/
    │     ├─ 📂macros/
    │     │     ╰─ ⚙️ delta.jinja
    │     ╰─ 📂latest/
    │           ├─ 📜 etl.delta.sql
    │           ├─ 📜 etl.scd2.sql
    │           ╰─ 📜 select.sql
-   ├─ 📂sqlite/
+   ├─ sqlite/
    │     ╰─ 📂latest/
    │           ╰─📜 etl.delta.sql
-   ├─ 📂synapse/
+   ├─ synapse/
    │     ╰─ 📂latest/
    │           ╰─📜 etl.delta.sql
-   ╰─ 📂utils/
+   ╰─ utils/
          ╰─ ⚙️ etl_vars.jinja
 ```
 

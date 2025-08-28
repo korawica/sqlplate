@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterator, Literal, Union
+from typing import Any, Iterator, Literal
 
 from jinja2 import Template
 
@@ -24,9 +24,12 @@ def trim(value: str) -> str:
     return value.strip().strip("\n")
 
 
-@dataclass
+Rule = Literal["contain", "validate"]
+
+
+@dataclass(frozen=True)
 class Check:
-    rule: Literal["contain", "validate"]
+    rule: Rule | str
     cols: list[str]
     condition: str
 
@@ -200,14 +203,14 @@ class SQLPlate:
 
     def check(
         self,
-        name: Literal["contain", "validate"],
-        cols: Union[str, list[str]],
+        name: Rule | str,
+        cols: str | list[str],
         condition: str,
     ) -> "SQLPlate":
         """Passing the check object to the validates key option.
 
         Args:
-            - name (str): A validation name.
+            - name (Rule | str): A validation name.
             - cols (str | list[str]): A list of column name.
             - condition (str): A condition string of this validation.
         """
